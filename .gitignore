@@ -6,3 +6,5 @@ __pycache__/
 data/*.db
 output/*.csv
 output/*.log
+output/reports/
+api_debug.log
