@@ -27,12 +27,14 @@ for _, company in companies.iterrows():
     years = years[years.str.match(r"^(Mar|Sep|TTM)", case=False, na=False)].nunique()
 
     if years < 3:
-        skipped.append({
-            "company_id": ticker,
-            "company_name": name,
-            "years_available": years,
-            "reason": "Less than 3 years of data"
-        })
+        skipped.append(
+            {
+                "company_id": ticker,
+                "company_name": name,
+                "years_available": years,
+                "reason": "Less than 3 years of data",
+            }
+        )
         continue
 
     try:
@@ -40,11 +42,7 @@ for _, company in companies.iterrows():
         generated += 1
         print(f"OK  {ticker}  {pdf.stat().st_size} bytes")
     except Exception as e:
-        errors.append({
-            "company_id": ticker,
-            "company_name": name,
-            "error": str(e)
-        })
+        errors.append({"company_id": ticker, "company_name": name, "error": str(e)})
         print(f"ERROR  {ticker}: {e}")
 
 pd.DataFrame(skipped).to_csv(SKIP, index=False)
@@ -60,8 +58,7 @@ print(f"Output          : {OUT}")
 
 if errors:
     pd.DataFrame(errors).to_csv(
-        PROJECT_ROOT / "output" / "tearsheet_generation_errors.csv",
-        index=False
+        PROJECT_ROOT / "output" / "tearsheet_generation_errors.csv", index=False
     )
 
 print("=" * 60)

@@ -4,7 +4,6 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DB_PATH = PROJECT_ROOT / "data" / "nifty100.db"
 
@@ -209,6 +208,7 @@ def get_valuation(ticker, year=None):
     conn.close()
 
     return df
+
 
 @st.cache_data(ttl=600)
 def get_peer_company_ids():

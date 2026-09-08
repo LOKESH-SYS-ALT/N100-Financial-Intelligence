@@ -15,7 +15,6 @@ from reportlab.platypus import (
     Spacer,
 )
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 REPORT_DIR = PROJECT_ROOT / "output" / "reports"
 REPORT_DIR.mkdir(parents=True, exist_ok=True)
@@ -24,8 +23,7 @@ REPORT_DIR.mkdir(parents=True, exist_ok=True)
 def _safe_filename(value: str) -> str:
     """Convert a company/preset name into a safe filename."""
     return "".join(
-        character if character.isalnum() or character in "_-"
-        else "_"
+        character if character.isalnum() or character in "_-" else "_"
         for character in str(value)
     )
 
@@ -85,9 +83,9 @@ def export_excel(
                     len(str(cell.value)),
                 )
 
-        worksheet.column_dimensions[
-            column_letter
-        ].width = min(max(max_length + 2, 12), 40)
+        worksheet.column_dimensions[column_letter].width = min(
+            max(max_length + 2, 12), 40
+        )
 
     workbook.save(output_path)
 
@@ -141,9 +139,7 @@ def export_pdf(
 
     display_df = display_df.fillna("")
 
-    table_data = [
-        [str(column) for column in display_df.columns]
-    ]
+    table_data = [[str(column) for column in display_df.columns]]
 
     for row in display_df.astype(str).values.tolist():
         table_data.append(row)

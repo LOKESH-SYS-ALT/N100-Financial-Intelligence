@@ -75,69 +75,93 @@ def test_cash_flow_sign():
 
 
 def test_capital_allocation_reinvestor():
-    assert capital_allocation_pattern(
-        100,
-        -50,
-        -25,
-        0.8,
-    ) == "Reinvestor"
+    assert (
+        capital_allocation_pattern(
+            100,
+            -50,
+            -25,
+            0.8,
+        )
+        == "Reinvestor"
+    )
 
 
 def test_capital_allocation_shareholder_returns():
-    assert capital_allocation_pattern(
-        200,
-        -50,
-        -25,
-        1.5,
-    ) == "Shareholder Returns"
+    assert (
+        capital_allocation_pattern(
+            200,
+            -50,
+            -25,
+            1.5,
+        )
+        == "Shareholder Returns"
+    )
 
 
 def test_capital_allocation_mixed():
-    assert capital_allocation_pattern(
-        100,
-        -50,
-        25,
-    ) == "Mixed"
+    assert (
+        capital_allocation_pattern(
+            100,
+            -50,
+            25,
+        )
+        == "Mixed"
+    )
 
 
 def test_capital_allocation_liquidating_assets():
-    assert capital_allocation_pattern(
-        100,
-        50,
-        -25,
-    ) == "Liquidating Assets"
+    assert (
+        capital_allocation_pattern(
+            100,
+            50,
+            -25,
+        )
+        == "Liquidating Assets"
+    )
 
 
 def test_capital_allocation_distress():
-    assert capital_allocation_pattern(
-        -100,
-        50,
-        25,
-    ) == "Distress Signal"
+    assert (
+        capital_allocation_pattern(
+            -100,
+            50,
+            25,
+        )
+        == "Distress Signal"
+    )
 
 
 def test_capital_allocation_growth_debt():
-    assert capital_allocation_pattern(
-        -100,
-        -50,
-        100,
-    ) == "Growth Funded by Debt"
+    assert (
+        capital_allocation_pattern(
+            -100,
+            -50,
+            100,
+        )
+        == "Growth Funded by Debt"
+    )
 
 
 def test_capital_allocation_cash_accumulator():
-    assert capital_allocation_pattern(
-        100,
-        50,
-        25,
-    ) == "Cash Accumulator"
+    assert (
+        capital_allocation_pattern(
+            100,
+            50,
+            25,
+        )
+        == "Cash Accumulator"
+    )
 
 
 def test_capital_allocation_pre_revenue():
-    assert capital_allocation_pattern(
-        -100,
-        -50,
-        -25,
-    ) == "Pre-Revenue"
+    assert (
+        capital_allocation_pattern(
+            -100,
+            -50,
+            -25,
+        )
+        == "Pre-Revenue"
+    )
 
 
 def test_cashflow_kpi_integration():

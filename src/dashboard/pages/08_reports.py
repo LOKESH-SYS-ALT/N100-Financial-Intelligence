@@ -13,6 +13,7 @@ from src.dashboard.utils.db import (
     get_valuation,
 )
 from src.analytics.valuation import build_valuation_summary
+
 st.set_page_config(
     page_title="Reports",
     page_icon="📄",
@@ -20,9 +21,7 @@ st.set_page_config(
 )
 
 st.title("📄 Reports & Exports")
-st.caption(
-    "Generate valuation summaries and export financial analytics."
-)
+st.caption("Generate valuation summaries and export financial analytics.")
 
 
 # ---------------------------------------------------------
@@ -35,12 +34,7 @@ if companies.empty:
     st.error("No companies found.")
     st.stop()
 
-company_ids = (
-    companies["id"]
-    .dropna()
-    .astype(str)
-    .tolist()
-)
+company_ids = companies["id"].dropna().astype(str).tolist()
 
 selected_ticker = st.selectbox(
     "Select Company",
@@ -52,9 +46,7 @@ selected_ticker = st.selectbox(
 # Company Name
 # ---------------------------------------------------------
 
-company_row = companies[
-    companies["id"].astype(str) == selected_ticker
-]
+company_row = companies[companies["id"].astype(str) == selected_ticker]
 
 if not company_row.empty:
     company_name = company_row.iloc[0].get(
@@ -79,9 +71,7 @@ valuation = all_valuation[
 ].copy()
 
 if valuation.empty:
-    st.warning(
-        f"No valuation data found for {selected_ticker}."
-    )
+    st.warning(f"No valuation data found for {selected_ticker}.")
     st.stop()
 
 latest = valuation.iloc[-1]
@@ -121,33 +111,29 @@ ev_ebitda = numeric_value("ev_ebitda")
 with col1:
     st.metric(
         "Market Cap",
-        f"₹{market_cap:,.2f} Cr"
-        if market_cap is not None and pd.notna(market_cap)
-        else "N/A",
+        (
+            f"₹{market_cap:,.2f} Cr"
+            if market_cap is not None and pd.notna(market_cap)
+            else "N/A"
+        ),
     )
 
 with col2:
     st.metric(
         "P/E Ratio",
-        f"{pe_ratio:.2f}"
-        if pe_ratio is not None and pd.notna(pe_ratio)
-        else "N/A",
+        f"{pe_ratio:.2f}" if pe_ratio is not None and pd.notna(pe_ratio) else "N/A",
     )
 
 with col3:
     st.metric(
         "P/B Ratio",
-        f"{pb_ratio:.2f}"
-        if pb_ratio is not None and pd.notna(pb_ratio)
-        else "N/A",
+        f"{pb_ratio:.2f}" if pb_ratio is not None and pd.notna(pb_ratio) else "N/A",
     )
 
 with col4:
     st.metric(
         "EV / EBITDA",
-        f"{ev_ebitda:.2f}"
-        if ev_ebitda is not None and pd.notna(ev_ebitda)
-        else "N/A",
+        f"{ev_ebitda:.2f}" if ev_ebitda is not None and pd.notna(ev_ebitda) else "N/A",
     )
 
 
@@ -155,9 +141,7 @@ with col4:
 # Dividend Yield
 # ---------------------------------------------------------
 
-dividend_yield = numeric_value(
-    "dividend_yield_pct"
-)
+dividend_yield = numeric_value("dividend_yield_pct")
 
 if dividend_yield is not None and pd.notna(dividend_yield):
     st.metric(
@@ -186,9 +170,7 @@ col1, col2, col3 = st.columns(3)
 with col1:
     st.metric(
         "FCF Yield",
-        f"{fcf_yield:.2f}%"
-        if pd.notna(fcf_yield)
-        else "N/A",
+        f"{fcf_yield:.2f}%" if pd.notna(fcf_yield) else "N/A",
     )
 
 with col2:
@@ -222,11 +204,7 @@ display_columns = [
     "valuation_label",
 ]
 
-display_columns = [
-    column
-    for column in display_columns
-    if column in valuation.columns
-]
+display_columns = [column for column in display_columns if column in valuation.columns]
 
 if display_columns:
     st.dataframe(
@@ -252,9 +230,7 @@ chart_columns = [
 
 if chart_columns and "year" in valuation.columns:
 
-    chart_df = valuation[
-        ["year"] + chart_columns
-    ].copy()
+    chart_df = valuation[["year"] + chart_columns].copy()
 
     for column in chart_columns:
         chart_df[column] = pd.to_numeric(
@@ -278,9 +254,7 @@ if chart_columns and "year" in valuation.columns:
 
 st.markdown("### 📥 Export")
 
-csv_data = valuation.to_csv(
-    index=False
-).encode("utf-8")
+csv_data = valuation.to_csv(index=False).encode("utf-8")
 
 st.download_button(
     label="Download Valuation CSV",

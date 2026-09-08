@@ -151,10 +151,7 @@ def get_sector_map(con):
     """
     try:
         columns = [
-            row[1]
-            for row in con.execute(
-                "PRAGMA table_info(sectors)"
-            ).fetchall()
+            row[1] for row in con.execute("PRAGMA table_info(sectors)").fetchall()
         ]
 
     except sqlite3.Error:
@@ -179,35 +176,25 @@ def get_sector_map(con):
     if company_col is None or sector_col is None:
         return {}
 
-    rows = con.execute(
-        f"""
+    rows = con.execute(f"""
         SELECT "{company_col}", "{sector_col}"
         FROM sectors
-        """
-    ).fetchall()
+        """).fetchall()
 
-    return {
-        str(company_id): str(sector or "")
-        for company_id, sector in rows
-    }
+    return {str(company_id): str(sector or "") for company_id, sector in rows}
 
 
 def ensure_columns(con):
     existing = {
-        row[1]
-        for row in con.execute(
-            "PRAGMA table_info(financial_ratios)"
-        ).fetchall()
+        row[1] for row in con.execute("PRAGMA table_info(financial_ratios)").fetchall()
     }
 
     for column, data_type in REQUIRED_COLUMNS.items():
         if column not in existing:
-            con.execute(
-                f"""
+            con.execute(f"""
                 ALTER TABLE financial_ratios
                 ADD COLUMN {column} {data_type}
-                """
-            )
+                """)
 
     con.commit()
 
@@ -217,8 +204,7 @@ def load_source_data(con):
     Loads all source tables into dictionaries keyed by company_id/year.
     """
 
-    profit_rows = con.execute(
-        """
+    profit_rows = con.execute("""
         SELECT
             company_id,
             year,
@@ -231,11 +217,9 @@ def load_source_data(con):
             eps,
             dividend_payout
         FROM profitandloss
-        """
-    ).fetchall()
+        """).fetchall()
 
-    balance_rows = con.execute(
-        """
+    balance_rows = con.execute("""
         SELECT
             company_id,
             year,
@@ -245,11 +229,9 @@ def load_source_data(con):
             investments,
             total_assets
         FROM balancesheet
-        """
-    ).fetchall()
+        """).fetchall()
 
-    cash_rows = con.execute(
-        """
+    cash_rows = con.execute("""
         SELECT
             company_id,
             year,
@@ -257,11 +239,9 @@ def load_source_data(con):
             investing_activity,
             financing_activity
         FROM cashflow
-        """
-    ).fetchall()
+        """).fetchall()
 
-    company_rows = con.execute(
-        """
+    company_rows = con.execute("""
         SELECT
             id,
             company_name,
@@ -270,8 +250,7 @@ def load_source_data(con):
             roe_percentage,
             face_value
         FROM companies
-        """
-    ).fetchall()
+        """).fetchall()
 
     profit = {}
     balance = {}
@@ -330,16 +309,13 @@ def build_history(profit):
 
     for company_id in history:
         history[company_id] = [
-            row
-            for row in history[company_id]
-            if row.get("year") is not None
+            row for row in history[company_id] if row.get("year") is not None
         ]
 
-        history[company_id].sort(
-            key=lambda x: x["year"]
-        )
+        history[company_id].sort(key=lambda x: x["year"])
 
     return history
+
 
 def find_cagr(history, current_year, field, window):
     """
@@ -366,6 +342,7 @@ def find_cagr(history, current_year, field, window):
 
     return cagr(previous, current, window)
 
+
 def capital_allocation_pattern(
     cfo,
     cfi,
@@ -391,10 +368,7 @@ def capital_allocation_pattern(
     )
 
     if pattern == ("+", "-", "-"):
-        if (
-            cfo_pat_ratio is not None
-            and cfo_pat_ratio > 1
-        ):
+        if cfo_pat_ratio is not None and cfo_pat_ratio > 1:
             label = "Shareholder Returns"
         else:
             label = "Reinvestor"
@@ -510,9 +484,7 @@ def main():
     )
 
     if not DB_PATH.exists():
-        raise FileNotFoundError(
-            f"Database not found: {DB_PATH}"
-        )
+        raise FileNotFoundError(f"Database not found: {DB_PATH}")
 
     con = sqlite3.connect(DB_PATH)
     con.execute("PRAGMA foreign_keys=ON")
@@ -533,20 +505,11 @@ def main():
     print(f"Cash Flow rows: {len(cash)}")
     print(f"Companies: {len(companies)}")
 
-    keys = sorted(
-        set(profit.keys())
-        | set(balance.keys())
-        | set(cash.keys())
-    )
+    keys = sorted(set(profit.keys()) | set(balance.keys()) | set(cash.keys()))
 
-    print(
-        f"Available company-year combinations: "
-        f"{len(keys)}"
-    )
+    print(f"Available company-year combinations: " f"{len(keys)}")
 
-    con.execute(
-        "DELETE FROM financial_ratios"
-    )
+    con.execute("DELETE FROM financial_ratios")
 
     edge_cases = []
     allocation_rows = []
@@ -590,17 +553,11 @@ def main():
     inserted = 0
 
     for company_id, year in keys:
-        p = profit.get(
-            (company_id, year)
-        )
+        p = profit.get((company_id, year))
 
-        b = balance.get(
-            (company_id, year)
-        )
+        b = balance.get((company_id, year))
 
-        cf = cash.get(
-            (company_id, year)
-        )
+        cf = cash.get((company_id, year))
 
         p = p or (
             None,
@@ -648,25 +605,13 @@ def main():
 
         equity = None
 
-        if (
-            equity_capital is not None
-            and reserves is not None
-        ):
-            equity = (
-                equity_capital
-                + reserves
-            )
+        if equity_capital is not None and reserves is not None:
+            equity = equity_capital + reserves
 
         capital_employed = None
 
-        if (
-            equity is not None
-            and borrowings is not None
-        ):
-            capital_employed = (
-                equity
-                + borrowings
-            )
+        if equity is not None and borrowings is not None:
+            capital_employed = equity + borrowings
 
         npm = percentage(
             net_profit,
@@ -703,10 +648,7 @@ def main():
 
         icr = None
 
-        if (
-            interest is not None
-            and interest != 0
-        ):
+        if interest is not None and interest != 0:
             numerator = 0
 
             if operating_profit is not None:
@@ -720,38 +662,20 @@ def main():
                 interest,
             )
 
-        icr_label_value = (
-            "Debt Free"
-            if icr is None
-            else "Covered"
-        )
+        icr_label_value = "Debt Free" if icr is None else "Covered"
 
-        icr_warning = (
-            icr is not None
-            and icr < 1.5
-        )
+        icr_warning = icr is not None and icr < 1.5
 
         sector = sector_map.get(
             company_id,
             "",
         )
 
-        is_financials = (
-            str(sector).strip().lower()
-            == "financials"
-        )
+        is_financials = str(sector).strip().lower() == "financials"
 
-        high_leverage = (
-            de is not None
-            and de > 5
-            and not is_financials
-        )
+        high_leverage = de is not None and de > 5 and not is_financials
 
-        if (
-            is_financials
-            and de is not None
-            and de > 5
-        ):
+        if is_financials and de is not None and de > 5:
             edge_cases.append(
                 f"{company_id},{year}: "
                 "Financials high leverage flag "
@@ -765,10 +689,7 @@ def main():
 
         fcf = None
 
-        if (
-            cfo is not None
-            and cfi is not None
-        ):
+        if cfo is not None and cfi is not None:
             fcf = cfo + cfi
 
         capex = None
@@ -776,12 +697,10 @@ def main():
         if cfi is not None:
             capex = abs(cfi)
 
-        book_value = (
-            companies.get(
-                company_id,
-                {},
-            ).get("book_value")
-        )
+        book_value = companies.get(
+            company_id,
+            {},
+        ).get("book_value")
 
         current_year = normalize_year(year)
 
@@ -815,13 +734,8 @@ def main():
             5,
         )
 
-        if (
-            opm is not None
-            and source_opm is not None
-        ):
-            difference = abs(
-                opm - source_opm
-            )
+        if opm is not None and source_opm is not None:
+            difference = abs(opm - source_opm)
 
             if difference > 1:
                 edge_cases.append(
@@ -832,20 +746,13 @@ def main():
                     f"difference={difference:.4f}%"
                 )
 
-        source_roce = (
-            companies.get(
-                company_id,
-                {},
-            ).get("roce_source")
-        )
+        source_roce = companies.get(
+            company_id,
+            {},
+        ).get("roce_source")
 
-        if (
-            roce is not None
-            and source_roce is not None
-        ):
-            difference = abs(
-                roce - source_roce
-            )
+        if roce is not None and source_roce is not None:
+            difference = abs(roce - source_roce)
 
             if difference > 5:
                 edge_cases.append(
@@ -857,20 +764,13 @@ def main():
                     "category=requires_review"
                 )
 
-        source_roe = (
-            companies.get(
-                company_id,
-                {},
-            ).get("roe_source")
-        )
+        source_roe = companies.get(
+            company_id,
+            {},
+        ).get("roe_source")
 
-        if (
-            roe is not None
-            and source_roe is not None
-        ):
-            difference = abs(
-                roe - source_roe
-            )
+        if roe is not None and source_roe is not None:
+            difference = abs(roe - source_roe)
 
             if difference > 5:
                 edge_cases.append(
@@ -955,10 +855,7 @@ def main():
 
     con.commit()
 
-    allocation_path = (
-        OUTPUT_DIR
-        / "capital_allocation.csv"
-    )
+    allocation_path = OUTPUT_DIR / "capital_allocation.csv"
 
     with allocation_path.open(
         "w",
@@ -978,14 +875,9 @@ def main():
         )
 
         writer.writeheader()
-        writer.writerows(
-            allocation_rows
-        )
+        writer.writerows(allocation_rows)
 
-    edge_path = (
-        OUTPUT_DIR
-        / "ratio_edge_cases.log"
-    )
+    edge_path = OUTPUT_DIR / "ratio_edge_cases.log"
 
     with edge_path.open(
         "w",
@@ -993,44 +885,25 @@ def main():
     ) as file:
         file.write(
             "N100 Financial Intelligence\n"
-            "Sprint 2 - Ratio Edge Cases\n"
-            + "=" * 70
-            + "\n"
+            "Sprint 2 - Ratio Edge Cases\n" + "=" * 70 + "\n"
         )
 
         if not edge_cases:
-            file.write(
-                "No anomalies detected.\n"
-            )
+            file.write("No anomalies detected.\n")
         else:
             for item in edge_cases:
-                file.write(
-                    item + "\n"
-                )
+                file.write(item + "\n")
 
-    row_count = con.execute(
-        "SELECT COUNT(*) "
-        "FROM financial_ratios"
-    ).fetchone()[0]
+    row_count = con.execute("SELECT COUNT(*) " "FROM financial_ratios").fetchone()[0]
 
     print()
     print("=" * 60)
     print("POPULATION COMPLETE")
     print("=" * 60)
-    print(
-        f"Inserted rows: {inserted}"
-    )
-    print(
-        f"Database rows: {row_count}"
-    )
-    print(
-        f"Capital allocation rows: "
-        f"{len(allocation_rows)}"
-    )
-    print(
-        f"Edge-case entries: "
-        f"{len(edge_cases)}"
-    )
+    print(f"Inserted rows: {inserted}")
+    print(f"Database rows: {row_count}")
+    print(f"Capital allocation rows: " f"{len(allocation_rows)}")
+    print(f"Edge-case entries: " f"{len(edge_cases)}")
 
     columns = [
         "net_profit_margin_pct",
@@ -1058,13 +931,11 @@ def main():
     print("Null-only KPI columns:")
 
     for column in columns:
-        count = con.execute(
-            f"""
+        count = con.execute(f"""
             SELECT COUNT(*)
             FROM financial_ratios
             WHERE {column} IS NOT NULL
-            """
-        ).fetchone()[0]
+            """).fetchone()[0]
 
         print(
             f"  {column}: "
@@ -1072,26 +943,17 @@ def main():
             f"({count} populated)"
         )
 
-    fk_errors = con.execute(
-        "PRAGMA foreign_key_check"
-    ).fetchall()
+    fk_errors = con.execute("PRAGMA foreign_key_check").fetchall()
 
     print()
-    print(
-        f"Foreign key errors: "
-        f"{len(fk_errors)}"
-    )
+    print(f"Foreign key errors: " f"{len(fk_errors)}")
 
     con.close()
 
     print()
     print("Generated:")
-    print(
-        f"  {allocation_path}"
-    )
-    print(
-        f"  {edge_path}"
-    )
+    print(f"  {allocation_path}")
+    print(f"  {edge_path}")
 
 
 if __name__ == "__main__":

@@ -3,7 +3,6 @@ import sqlite3
 import re
 import pandas as pd
 
-
 # ============================================================
 # PATHS
 # ============================================================
@@ -17,6 +16,7 @@ OUTPUT_PATH = PROJECT_ROOT / "output" / "pros_cons_generated.csv"
 # ============================================================
 # DATABASE
 # ============================================================
+
 
 def get_connection():
     return sqlite3.connect(DB_PATH)
@@ -58,6 +58,7 @@ def load_ratios():
 # ============================================================
 # HELPERS
 # ============================================================
+
 
 def numeric(value):
     try:
@@ -117,6 +118,7 @@ def add_signal(signals, company_id, signal_type, rule_id, text, confidence):
 # PRO RULES
 # ============================================================
 
+
 def generate_pros(group, company_id, signals):
 
     group = group.copy()
@@ -165,8 +167,7 @@ def generate_pros(group, company_id, signals):
 
             strength = min(
                 1,
-                fcf.tail(5).mean()
-                / max(abs(fcf.tail(5).mean()), 1),
+                fcf.tail(5).mean() / max(abs(fcf.tail(5).mean()), 1),
             )
 
             add_signal(
@@ -227,9 +228,7 @@ def generate_pros(group, company_id, signals):
 
     if "operating_profit_margin_pct" in group.columns:
 
-        value = numeric(
-            latest.get("operating_profit_margin_pct")
-        )
+        value = numeric(latest.get("operating_profit_margin_pct"))
 
         if value is not None and value > 25:
 
@@ -278,10 +277,7 @@ def generate_pros(group, company_id, signals):
     icr = numeric(latest.get("interest_coverage"))
     de = numeric(latest.get("debt_to_equity"))
 
-    if (
-        (icr is not None and icr > 10)
-        or (de is not None and de == 0)
-    ):
+    if (icr is not None and icr > 10) or (de is not None and de == 0):
 
         if icr is not None and icr > 10:
 
@@ -352,10 +348,7 @@ def generate_pros(group, company_id, signals):
 
             last3 = roe.tail(3)
 
-            if (
-                last3.iloc[1] > last3.iloc[0]
-                and last3.iloc[2] > last3.iloc[1]
-            ):
+            if last3.iloc[1] > last3.iloc[0] and last3.iloc[2] > last3.iloc[1]:
 
                 add_signal(
                     signals,
@@ -373,11 +366,7 @@ def generate_pros(group, company_id, signals):
     revenue = numeric(latest.get("revenue_cagr_5yr"))
     pat = numeric(latest.get("pat_cagr_5yr"))
 
-    if (
-        revenue is not None
-        and pat is not None
-        and pat > revenue
-    ):
+    if revenue is not None and pat is not None and pat > revenue:
 
         strength = min(
             1,
@@ -408,10 +397,7 @@ def generate_pros(group, company_id, signals):
 
             last3 = roce.tail(3)
 
-            if (
-                last3.iloc[1] > last3.iloc[0]
-                and last3.iloc[2] > last3.iloc[1]
-            ):
+            if last3.iloc[1] > last3.iloc[0] and last3.iloc[2] > last3.iloc[1]:
 
                 add_signal(
                     signals,
@@ -426,9 +412,7 @@ def generate_pros(group, company_id, signals):
     # PRO_12 — Strong ROCE latest
     # --------------------------------------------------------
 
-    roce = numeric(
-        latest.get("return_on_capital_employed_pct")
-    )
+    roce = numeric(latest.get("return_on_capital_employed_pct"))
 
     if roce is not None and roce > 20:
 
@@ -450,6 +434,7 @@ def generate_pros(group, company_id, signals):
 # ============================================================
 # CON RULES
 # ============================================================
+
 
 def generate_cons(group, company_id, signals):
 
@@ -516,10 +501,7 @@ def generate_cons(group, company_id, signals):
 
             last3 = opm.tail(3)
 
-            if (
-                last3.iloc[1] < last3.iloc[0]
-                and last3.iloc[2] < last3.iloc[1]
-            ):
+            if last3.iloc[1] < last3.iloc[0] and last3.iloc[2] < last3.iloc[1]:
 
                 add_signal(
                     signals,
@@ -534,9 +516,7 @@ def generate_cons(group, company_id, signals):
     # CON_04 — Negative profit margin latest
     # --------------------------------------------------------
 
-    npm = numeric(
-        latest.get("net_profit_margin_pct")
-    )
+    npm = numeric(latest.get("net_profit_margin_pct"))
 
     if npm is not None and npm < 0:
 
@@ -553,9 +533,7 @@ def generate_cons(group, company_id, signals):
     # CON_05 — ICR < 1.5
     # --------------------------------------------------------
 
-    icr = numeric(
-        latest.get("interest_coverage")
-    )
+    icr = numeric(latest.get("interest_coverage"))
 
     if icr is not None and icr < 1.5:
 
@@ -572,9 +550,7 @@ def generate_cons(group, company_id, signals):
     # CON_06 — Payout > 100%
     # --------------------------------------------------------
 
-    payout = numeric(
-        latest.get("dividend_payout_ratio_pct")
-    )
+    payout = numeric(latest.get("dividend_payout_ratio_pct"))
 
     if payout is not None and payout > 100:
 
@@ -607,10 +583,7 @@ def generate_cons(group, company_id, signals):
 
             last3 = de_series.tail(3)
 
-            if (
-                last3.iloc[1] > last3.iloc[0]
-                and last3.iloc[2] > last3.iloc[1]
-            ):
+            if last3.iloc[1] > last3.iloc[0] and last3.iloc[2] > last3.iloc[1]:
 
                 add_signal(
                     signals,
@@ -636,10 +609,7 @@ def generate_cons(group, company_id, signals):
 
             last3 = eps.tail(3)
 
-            if (
-                last3.iloc[1] < last3.iloc[0]
-                and last3.iloc[2] < last3.iloc[1]
-            ):
+            if last3.iloc[1] < last3.iloc[0] and last3.iloc[2] < last3.iloc[1]:
 
                 add_signal(
                     signals,
@@ -654,9 +624,7 @@ def generate_cons(group, company_id, signals):
     # CON_09 — ROCE < 10%
     # --------------------------------------------------------
 
-    roce = numeric(
-        latest.get("return_on_capital_employed_pct")
-    )
+    roce = numeric(latest.get("return_on_capital_employed_pct"))
 
     if roce is not None and roce < 10:
 
@@ -678,9 +646,7 @@ def generate_cons(group, company_id, signals):
     # CON_10 — High leverage flag
     # --------------------------------------------------------
 
-    high_leverage = numeric(
-        latest.get("high_leverage_flag")
-    )
+    high_leverage = numeric(latest.get("high_leverage_flag"))
 
     if high_leverage == 1:
 
@@ -697,9 +663,7 @@ def generate_cons(group, company_id, signals):
     # CON_11 — Weak revenue CAGR
     # --------------------------------------------------------
 
-    revenue = numeric(
-        latest.get("revenue_cagr_5yr")
-    )
+    revenue = numeric(latest.get("revenue_cagr_5yr"))
 
     if revenue is not None and revenue < 5:
 
@@ -716,13 +680,9 @@ def generate_cons(group, company_id, signals):
     # CON_12 — Weak PAT / EPS growth
     # --------------------------------------------------------
 
-    pat = numeric(
-        latest.get("pat_cagr_5yr")
-    )
+    pat = numeric(latest.get("pat_cagr_5yr"))
 
-    eps_cagr = numeric(
-        latest.get("eps_cagr_5yr")
-    )
+    eps_cagr = numeric(latest.get("eps_cagr_5yr"))
 
     weak_metrics = []
 
@@ -748,22 +708,14 @@ def generate_cons(group, company_id, signals):
 # FALLBACK SIGNALS
 # ============================================================
 
+
 def add_fallback_signals(group, company_id, signals):
 
-    company_signals = [
-        x for x in signals
-        if x["company_id"] == company_id
-    ]
+    company_signals = [x for x in signals if x["company_id"] == company_id]
 
-    has_pro = any(
-        x["type"] == "pro"
-        for x in company_signals
-    )
+    has_pro = any(x["type"] == "pro" for x in company_signals)
 
-    has_con = any(
-        x["type"] == "con"
-        for x in company_signals
-    )
+    has_con = any(x["type"] == "con" for x in company_signals)
 
     latest = latest_row(group)
 
@@ -773,17 +725,11 @@ def add_fallback_signals(group, company_id, signals):
 
     if not has_pro:
 
-        roe = numeric(
-            latest.get("return_on_equity_pct")
-        )
+        roe = numeric(latest.get("return_on_equity_pct"))
 
-        roce = numeric(
-            latest.get("return_on_capital_employed_pct")
-        )
+        roce = numeric(latest.get("return_on_capital_employed_pct"))
 
-        fcf = numeric(
-            latest.get("free_cash_flow_cr")
-        )
+        fcf = numeric(latest.get("free_cash_flow_cr"))
 
         if roe is not None:
 
@@ -828,17 +774,11 @@ def add_fallback_signals(group, company_id, signals):
 
     if not has_con:
 
-        de = numeric(
-            latest.get("debt_to_equity")
-        )
+        de = numeric(latest.get("debt_to_equity"))
 
-        revenue = numeric(
-            latest.get("revenue_cagr_5yr")
-        )
+        revenue = numeric(latest.get("revenue_cagr_5yr"))
 
-        pat = numeric(
-            latest.get("pat_cagr_5yr")
-        )
+        pat = numeric(latest.get("pat_cagr_5yr"))
 
         if de is not None:
 
@@ -884,6 +824,7 @@ def add_fallback_signals(group, company_id, signals):
 # MAIN GENERATOR
 # ============================================================
 
+
 def generate_pros_cons():
 
     companies = load_companies()
@@ -893,16 +834,11 @@ def generate_pros_cons():
 
     if ratios.empty:
 
-        raise RuntimeError(
-            "financial_ratios table is empty."
-        )
+        raise RuntimeError("financial_ratios table is empty.")
 
     for company_id in companies["company_id"]:
 
-        group = ratios[
-            ratios["company_id"].astype(str)
-            == str(company_id)
-        ].copy()
+        group = ratios[ratios["company_id"].astype(str) == str(company_id)].copy()
 
         if group.empty:
             continue
@@ -929,9 +865,7 @@ def generate_pros_cons():
 
     if output.empty:
 
-        raise RuntimeError(
-            "No Pros/Cons signals were generated."
-        )
+        raise RuntimeError("No Pros/Cons signals were generated.")
 
     OUTPUT_PATH.parent.mkdir(
         parents=True,
@@ -960,21 +894,14 @@ def generate_pros_cons():
 # VERIFICATION
 # ============================================================
 
+
 def verify_output(output, companies):
 
-    company_ids = set(
-        companies["company_id"]
-        .astype(str)
-    )
+    company_ids = set(companies["company_id"].astype(str))
 
-    output_company_ids = set(
-        output["company_id"]
-        .astype(str)
-    )
+    output_company_ids = set(output["company_id"].astype(str))
 
-    missing_companies = sorted(
-        company_ids - output_company_ids
-    )
+    missing_companies = sorted(company_ids - output_company_ids)
 
     pro_companies = set(
         output.loc[
@@ -990,55 +917,30 @@ def verify_output(output, companies):
         ].astype(str)
     )
 
-    missing_pro = sorted(
-        company_ids - pro_companies
-    )
+    missing_pro = sorted(company_ids - pro_companies)
 
-    missing_con = sorted(
-        company_ids - con_companies
-    )
+    missing_con = sorted(company_ids - con_companies)
 
     print()
     print("=" * 60)
     print("PROS / CONS VERIFICATION")
     print("=" * 60)
 
-    print(
-        f"Companies in companies table : {len(company_ids)}"
-    )
+    print(f"Companies in companies table : {len(company_ids)}")
 
-    print(
-        f"Companies with output         : {len(output_company_ids)}"
-    )
+    print(f"Companies with output         : {len(output_company_ids)}")
 
-    print(
-        f"Total generated signals       : {len(output)}"
-    )
+    print(f"Total generated signals       : {len(output)}")
 
-    print(
-        f"Pro signals                   : "
-        f"{(output['type'] == 'pro').sum()}"
-    )
+    print(f"Pro signals                   : " f"{(output['type'] == 'pro').sum()}")
 
-    print(
-        f"Con signals                   : "
-        f"{(output['type'] == 'con').sum()}"
-    )
+    print(f"Con signals                   : " f"{(output['type'] == 'con').sum()}")
 
-    print(
-        f"Companies missing any output  : "
-        f"{len(missing_companies)}"
-    )
+    print(f"Companies missing any output  : " f"{len(missing_companies)}")
 
-    print(
-        f"Companies missing Pro         : "
-        f"{len(missing_pro)}"
-    )
+    print(f"Companies missing Pro         : " f"{len(missing_pro)}")
 
-    print(
-        f"Companies missing Con         : "
-        f"{len(missing_con)}"
-    )
+    print(f"Companies missing Con         : " f"{len(missing_con)}")
 
     if missing_companies:
 
@@ -1060,23 +962,13 @@ def verify_output(output, companies):
 
     print()
 
-    if (
-        not missing_companies
-        and not missing_pro
-        and not missing_con
-    ):
+    if not missing_companies and not missing_pro and not missing_con:
 
-        print(
-            "SUCCESS: All 92 companies have at least "
-            "one Pro and one Con signal."
-        )
+        print("SUCCESS: All 92 companies have at least " "one Pro and one Con signal.")
 
     else:
 
-        print(
-            "REVIEW REQUIRED: Some companies do not have "
-            "both Pro and Con."
-        )
+        print("REVIEW REQUIRED: Some companies do not have " "both Pro and Con.")
 
     print("=" * 60)
 
@@ -1089,13 +981,9 @@ if __name__ == "__main__":
 
     output, companies = generate_pros_cons()
 
-    print(
-        f"Generated file: {OUTPUT_PATH}"
-    )
+    print(f"Generated file: {OUTPUT_PATH}")
 
-    print(
-        f"Generated rows: {len(output)}"
-    )
+    print(f"Generated rows: {len(output)}")
 
     verify_output(
         output,

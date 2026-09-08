@@ -1,4 +1,3 @@
-
 """
 N100 Financial Intelligence
 Sprint 2 - CAGR Engine
@@ -12,7 +11,6 @@ Day 10:
 """
 
 from typing import Optional, Sequence
-
 
 # ============================================================
 # CAGR EDGE-CASE FLAGS
@@ -29,6 +27,7 @@ INSUFFICIENT = "INSUFFICIENT"
 # ============================================================
 # CORE CAGR
 # ============================================================
+
 
 def calculate_cagr(
     start_value: float,
@@ -80,16 +79,13 @@ def calculate_cagr(
 # WINDOW / SERIES HELPERS
 # ============================================================
 
+
 def _normalise_series(
     values: Sequence[float],
 ) -> list[float]:
     """Convert a sequence to a clean numeric list."""
 
-    return [
-        float(value)
-        for value in values
-        if value is not None
-    ]
+    return [float(value) for value in values if value is not None]
 
 
 def cagr_from_series(
@@ -140,6 +136,7 @@ def cagr_window(
 # ============================================================
 # INDIVIDUAL WINDOW FUNCTIONS
 # ============================================================
+
 
 def revenue_cagr_3yr(
     revenue_values: Sequence[float],
@@ -208,6 +205,7 @@ def eps_cagr_10yr(
 # GENERIC METRIC ENGINE
 # ============================================================
 
+
 def calculate_metric_cagrs(
     values: Sequence[float],
 ) -> dict:
@@ -234,6 +232,7 @@ def calculate_metric_cagrs(
 # COMPLETE COMPANY CAGR ENGINE
 # ============================================================
 
+
 def calculate_company_cagrs(
     revenue_values: Sequence[float],
     pat_values: Sequence[float],
@@ -255,7 +254,6 @@ def calculate_company_cagrs(
         "revenue_cagr_5yr_flag": revenue["cagr_5yr_flag"],
         "revenue_cagr_10yr": revenue["cagr_10yr"],
         "revenue_cagr_10yr_flag": revenue["cagr_10yr_flag"],
-
         # PAT
         "pat_cagr_3yr": pat["cagr_3yr"],
         "pat_cagr_3yr_flag": pat["cagr_3yr_flag"],
@@ -263,7 +261,6 @@ def calculate_company_cagrs(
         "pat_cagr_5yr_flag": pat["cagr_5yr_flag"],
         "pat_cagr_10yr": pat["cagr_10yr"],
         "pat_cagr_10yr_flag": pat["cagr_10yr_flag"],
-
         # EPS
         "eps_cagr_3yr": eps["cagr_3yr"],
         "eps_cagr_3yr_flag": eps["cagr_3yr_flag"],
@@ -277,6 +274,7 @@ def calculate_company_cagrs(
 # ============================================================
 # SIMPLE VALUE-BASED HELPERS
 # ============================================================
+
 
 def revenue_cagr(
     start_value: float,
@@ -323,6 +321,7 @@ def eps_cagr(
 # ============================================================
 # RESULT HELPER
 # ============================================================
+
 
 def cagr_result(
     start_value: float,

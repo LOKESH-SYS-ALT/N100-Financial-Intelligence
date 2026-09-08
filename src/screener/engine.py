@@ -26,6 +26,7 @@ import yaml
 # FINANCIAL DATA ALIGNMENT
 # ============================================================
 
+
 def get_latest_common_financial_year(
     pnl: pd.DataFrame,
     balance: pd.DataFrame,
@@ -42,12 +43,7 @@ def get_latest_common_financial_year(
         if df.empty or "year" not in df.columns:
             continue
 
-        years = (
-            df["year"]
-            .apply(normalize_year)
-            .dropna()
-            .astype(int)
-        )
+        years = df["year"].apply(normalize_year).dropna().astype(int)
 
         if not years.empty:
             year_sets.append(set(years.tolist()))
@@ -82,17 +78,13 @@ def latest_common_year_per_company(
 
     for df in [pnl, balance, cashflow]:
         if "year" in df.columns:
-            df["_normalized_year"] = (
-                df["year"].apply(normalize_year)
-            )
+            df["_normalized_year"] = df["year"].apply(normalize_year)
 
     companies = set()
 
     for df in [pnl, balance, cashflow]:
         if "company_id" in df.columns:
-            companies.update(
-                df["company_id"].dropna().astype(str)
-            )
+            companies.update(df["company_id"].dropna().astype(str))
 
     aligned_pnl = []
     aligned_balance = []
@@ -101,22 +93,12 @@ def latest_common_year_per_company(
     for company_id in companies:
 
         p = pnl[pnl["company_id"].astype(str) == company_id]
-        b = balance[
-            balance["company_id"].astype(str) == company_id
-        ]
-        cf = cashflow[
-            cashflow["company_id"].astype(str) == company_id
-        ]
+        b = balance[balance["company_id"].astype(str) == company_id]
+        cf = cashflow[cashflow["company_id"].astype(str) == company_id]
 
-        p_years = set(
-            p["_normalized_year"].dropna().astype(int)
-        )
-        b_years = set(
-            b["_normalized_year"].dropna().astype(int)
-        )
-        cf_years = set(
-            cf["_normalized_year"].dropna().astype(int)
-        )
+        p_years = set(p["_normalized_year"].dropna().astype(int))
+        b_years = set(b["_normalized_year"].dropna().astype(int))
+        cf_years = set(cf["_normalized_year"].dropna().astype(int))
 
         common = p_years & b_years & cf_years
 
@@ -125,20 +107,11 @@ def latest_common_year_per_company(
 
         latest_year = max(common)
 
-        aligned_pnl.append(
-            p[p["_normalized_year"] == latest_year]
-            .tail(1)
-        )
+        aligned_pnl.append(p[p["_normalized_year"] == latest_year].tail(1))
 
-        aligned_balance.append(
-            b[b["_normalized_year"] == latest_year]
-            .tail(1)
-        )
+        aligned_balance.append(b[b["_normalized_year"] == latest_year].tail(1))
 
-        aligned_cashflow.append(
-            cf[cf["_normalized_year"] == latest_year]
-            .tail(1)
-        )
+        aligned_cashflow.append(cf[cf["_normalized_year"] == latest_year].tail(1))
 
     def combine(parts, original):
         if parts:
@@ -159,6 +132,8 @@ def latest_common_year_per_company(
         combine(aligned_balance, balance),
         combine(aligned_cashflow, cashflow),
     )
+
+
 # ============================================================
 # PATHS
 # ============================================================
@@ -173,6 +148,7 @@ CONFIG_PATH = PROJECT_ROOT / "config" / "screener_config.yaml"
 # CONFIG
 # ============================================================
 
+
 def load_config(
     config_path: str | Path = CONFIG_PATH,
 ) -> dict[str, Any]:
@@ -181,17 +157,13 @@ def load_config(
     path = Path(config_path)
 
     if not path.exists():
-        raise FileNotFoundError(
-            f"Screener config not found: {path}"
-        )
+        raise FileNotFoundError(f"Screener config not found: {path}")
 
     with path.open("r", encoding="utf-8") as file:
         config = yaml.safe_load(file) or {}
 
     if not isinstance(config, dict):
-        raise ValueError(
-            "screener_config.yaml must contain a YAML mapping."
-        )
+        raise ValueError("screener_config.yaml must contain a YAML mapping.")
 
     return config
 
@@ -199,6 +171,7 @@ def load_config(
 # ============================================================
 # DATABASE HELPERS
 # ============================================================
+
 
 def table_exists(
     connection: sqlite3.Connection,
@@ -249,10 +222,7 @@ def clean_duplicate_columns(
 
     df = dataframe.copy()
 
-    df = df.loc[
-        :,
-        ~df.columns.duplicated()
-    ]
+    df = df.loc[:, ~df.columns.duplicated()]
 
     return df
 
@@ -260,6 +230,7 @@ def clean_duplicate_columns(
 # ============================================================
 # YEAR NORMALISATION
 # ============================================================
+
 
 def normalize_year(value: Any) -> int | None:
     """
@@ -317,6 +288,7 @@ def normalize_year(value: Any) -> int | None:
 # LATEST YEAR
 # ============================================================
 
+
 def latest_per_company(
     dataframe: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -333,9 +305,7 @@ def latest_per_company(
         return df
 
     if "year" in df.columns:
-        df["_normalized_year"] = df["year"].apply(
-            normalize_year
-        )
+        df["_normalized_year"] = df["year"].apply(normalize_year)
 
         df = df.sort_values(
             ["company_id", "_normalized_year"],
@@ -364,6 +334,7 @@ def latest_per_company(
 # ============================================================
 # SECTOR LOADING
 # ============================================================
+
 
 def prepare_sector_data(
     sectors: pd.DataFrame,
@@ -450,9 +421,7 @@ def prepare_sector_data(
 
     result = clean_duplicate_columns(result)
 
-    result = result.drop_duplicates(
-        subset=["company_id"]
-    )
+    result = result.drop_duplicates(subset=["company_id"])
 
     return result
 
@@ -460,6 +429,7 @@ def prepare_sector_data(
 # ============================================================
 # MARKET CAP
 # ============================================================
+
 
 def prepare_market_cap(
     market_cap: pd.DataFrame,
@@ -472,10 +442,7 @@ def prepare_market_cap(
     df = clean_duplicate_columns(market_cap).copy()
 
     # Find company id.
-    if (
-        "company_id" not in df.columns
-        and "id" in df.columns
-    ):
+    if "company_id" not in df.columns and "id" in df.columns:
         df.rename(
             columns={"id": "company_id"},
             inplace=True,
@@ -504,10 +471,7 @@ def prepare_market_cap(
         "dividend_yield_pct",
     ]
 
-    available = [
-        col for col in wanted
-        if col in df.columns
-    ]
+    available = [col for col in wanted if col in df.columns]
 
     if "company_id" not in available:
         return pd.DataFrame()
@@ -515,26 +479,18 @@ def prepare_market_cap(
     if "year" in df.columns:
         available.append("year")
 
-    result = df[
-        list(dict.fromkeys(available))
-    ].copy()
+    result = df[list(dict.fromkeys(available))].copy()
 
     # Normalize year.
     if "year" in result.columns:
-        result["_year"] = result["year"].apply(
-            normalize_year
-        )
+        result["_year"] = result["year"].apply(normalize_year)
 
         # Remove invalid years before sorting.
-        result = result[
-            result["_year"].notna()
-        ].copy()
+        result = result[result["_year"].notna()].copy()
 
         if not result.empty:
             result = (
-                result.sort_values(
-                    ["company_id", "_year"]
-                )
+                result.sort_values(["company_id", "_year"])
                 .groupby(
                     "company_id",
                     as_index=False,
@@ -549,9 +505,12 @@ def prepare_market_cap(
         )
 
     return result.reset_index(drop=True)
+
+
 # ============================================================
 # LOAD SCREENER DATA
 # ============================================================
+
 
 def load_screener_data(
     db_path: str | Path = DB_PATH,
@@ -573,9 +532,7 @@ def load_screener_data(
     path = Path(db_path)
 
     if not path.exists():
-        raise FileNotFoundError(
-            f"Database not found: {path}"
-        )
+        raise FileNotFoundError(f"Database not found: {path}")
 
     connection = sqlite3.connect(path)
 
@@ -616,11 +573,8 @@ def load_screener_data(
         connection.close()
 
     if ratios.empty:
-        raise ValueError(
-            "financial_ratios table is empty."
-        )
+        raise ValueError("financial_ratios table is empty.")
 
-    
     # --------------------------------------------------------
     # Clean ratios
     # --------------------------------------------------------
@@ -629,7 +583,6 @@ def load_screener_data(
 
     # Keep all historical ratio rows before selecting latest
     all_ratios = ratios.copy()
-
 
     ratios = latest_per_company(ratios)
 
@@ -648,9 +601,7 @@ def load_screener_data(
 
     if not all_ratios.empty:
 
-        all_ratios["_normalized_year"] = (
-            all_ratios["year"].apply(normalize_year)
-        )
+        all_ratios["_normalized_year"] = all_ratios["year"].apply(normalize_year)
 
         all_ratios = all_ratios.sort_values(
             [
@@ -672,9 +623,7 @@ def load_screener_data(
                         column,
                     ]
                 ]
-                .dropna(
-                    subset=[column]
-                )
+                .dropna(subset=[column])
                 .drop_duplicates(
                     subset=["company_id"],
                     keep="last",
@@ -692,15 +641,12 @@ def load_screener_data(
 
             if fallback_column in ratios.columns:
 
-                ratios[column] = ratios[column].fillna(
-                    ratios[fallback_column]
-                )
+                ratios[column] = ratios[column].fillna(ratios[fallback_column])
 
                 ratios.drop(
                     columns=[fallback_column],
                     inplace=True,
                 )
-
 
     # --------------------------------------------------------
     # Companies
@@ -708,42 +654,28 @@ def load_screener_data(
 
     if not companies.empty:
 
-        companies = clean_duplicate_columns(
-            companies
-        )
+        companies = clean_duplicate_columns(companies)
 
         if "id" in companies.columns:
 
             company_columns = ["id"]
 
             if "company_name" in companies.columns:
-                company_columns.append(
-                    "company_name"
-                )
+                company_columns.append("company_name")
 
             if "website" in companies.columns:
-                company_columns.append(
-                    "website"
-                )
+                company_columns.append("website")
 
-            company_df = companies[
-                company_columns
-            ].copy()
+            company_df = companies[company_columns].copy()
 
             company_df.rename(
-                columns={
-                    "id": "company_id"
-                },
+                columns={"id": "company_id"},
                 inplace=True,
             )
 
-            company_df = clean_duplicate_columns(
-                company_df
-            )
+            company_df = clean_duplicate_columns(company_df)
 
-            company_df = company_df.drop_duplicates(
-                subset=["company_id"]
-            )
+            company_df = company_df.drop_duplicates(subset=["company_id"])
 
             ratios = ratios.merge(
                 company_df,
@@ -756,26 +688,20 @@ def load_screener_data(
     # Sector
     # --------------------------------------------------------
 
-    sector_df = prepare_sector_data(
-        sectors
-    )
+    sector_df = prepare_sector_data(sectors)
 
     if not sector_df.empty:
 
         # IMPORTANT:
         # Ensure company_id is unique before merge.
-        sector_df = clean_duplicate_columns(
-            sector_df
-        )
+        sector_df = clean_duplicate_columns(sector_df)
 
         sector_df = sector_df[
             [
                 "company_id",
                 "broad_sector",
             ]
-        ].drop_duplicates(
-            subset=["company_id"]
-        )
+        ].drop_duplicates(subset=["company_id"])
 
         ratios = ratios.merge(
             sector_df,
@@ -787,9 +713,7 @@ def load_screener_data(
     # Market Cap
     # --------------------------------------------------------
 
-    market_df = prepare_market_cap(
-        market_cap
-    )
+    market_df = prepare_market_cap(market_cap)
 
     if not market_df.empty:
 
@@ -806,13 +730,9 @@ def load_screener_data(
 
     if not profit_loss.empty:
 
-        pl = clean_duplicate_columns(
-            profit_loss
-        )
+        pl = clean_duplicate_columns(profit_loss)
 
         pl = latest_per_company(pl)
-
-
 
         keep_columns = [
             "company_id",
@@ -824,19 +744,13 @@ def load_screener_data(
             "dividend_payout",
         ]
 
-        keep_columns = [
-            column
-            for column in keep_columns
-            if column in pl.columns
-        ]
+        keep_columns = [column for column in keep_columns if column in pl.columns]
 
         if "company_id" in keep_columns:
 
             pl = pl[keep_columns]
 
-            pl = pl.drop_duplicates(
-                subset=["company_id"]
-            )
+            pl = pl.drop_duplicates(subset=["company_id"])
 
             ratios = ratios.merge(
                 pl,
@@ -851,9 +765,7 @@ def load_screener_data(
 
     if not balance_sheet.empty:
 
-        bs = clean_duplicate_columns(
-            balance_sheet
-        )
+        bs = clean_duplicate_columns(balance_sheet)
 
         bs = latest_per_company(bs)
 
@@ -865,19 +777,13 @@ def load_screener_data(
             "reserves",
         ]
 
-        keep_columns = [
-            column
-            for column in keep_columns
-            if column in bs.columns
-        ]
+        keep_columns = [column for column in keep_columns if column in bs.columns]
 
         if "company_id" in keep_columns:
 
             bs = bs[keep_columns]
 
-            bs = bs.drop_duplicates(
-                subset=["company_id"]
-            )
+            bs = bs.drop_duplicates(subset=["company_id"])
 
             ratios = ratios.merge(
                 bs,
@@ -890,9 +796,7 @@ def load_screener_data(
     # Remove temporary/duplicate columns
     # --------------------------------------------------------
 
-    ratios = clean_duplicate_columns(
-        ratios
-    )
+    ratios = clean_duplicate_columns(ratios)
 
     return ratios.reset_index(drop=True)
 
@@ -900,6 +804,7 @@ def load_screener_data(
 # ============================================================
 # NUMERIC HELPERS
 # ============================================================
+
 
 def numeric(
     series: pd.Series,
@@ -924,6 +829,7 @@ def ensure_column(
 # ============================================================
 # WINSORISED SCORE
 # ============================================================
+
 
 def winsorized_score(
     series: pd.Series,
@@ -973,10 +879,7 @@ def winsorized_score(
         upper=p90,
     )
 
-    score = (
-        (clipped - p10)
-        / (p90 - p10)
-    ) * 100.0
+    score = ((clipped - p10) / (p90 - p10)) * 100.0
 
     if not higher_is_better:
         score = 100.0 - score
@@ -987,6 +890,7 @@ def winsorized_score(
 # ============================================================
 # COMPOSITE SCORE
 # ============================================================
+
 
 def calculate_composite_quality_score(
     dataframe: pd.DataFrame,
@@ -1036,9 +940,9 @@ def calculate_composite_quality_score(
         higher_is_better=True,
     )
     profitability = (
-         roe_score.fillna(50.0) * 0.15
-         + roce_score.fillna(50.0) * 0.10
-         + npm_score.fillna(50.0) * 0.10
+        roe_score.fillna(50.0) * 0.15
+        + roce_score.fillna(50.0) * 0.10
+        + npm_score.fillna(50.0) * 0.10
     )
     # --------------------------------------------------------
     # Cash Quality
@@ -1054,18 +958,13 @@ def calculate_composite_quality_score(
         higher_is_better=True,
     )
 
-    fcf_positive_flag = (
-        numeric(
-            df["free_cash_flow_cr"]
-        ) > 0
-    ).astype(float) * 100.0
+    fcf_positive_flag = (numeric(df["free_cash_flow_cr"]) > 0).astype(float) * 100.0
 
     cash_quality = (
         fcf_score.fillna(50.0) * 0.15
         + cfo_score.fillna(50.0) * 0.10
         + fcf_positive_flag.fillna(50.0) * 0.05
     )
-       
 
     # --------------------------------------------------------
     # Growth
@@ -1082,8 +981,7 @@ def calculate_composite_quality_score(
     )
 
     growth = (
-        revenue_growth_score.fillna(50.0) * 0.10
-        + pat_growth_score.fillna(50.0) * 0.10
+        revenue_growth_score.fillna(50.0) * 0.10 + pat_growth_score.fillna(50.0) * 0.10
     )
 
     # --------------------------------------------------------
@@ -1100,27 +998,15 @@ def calculate_composite_quality_score(
         higher_is_better=True,
     )
 
-    leverage = (
-         de_score.fillna(50.0) * 0.10
-         + icr_score.fillna(50.0) * 0.05
-    )
+    leverage = de_score.fillna(50.0) * 0.10 + icr_score.fillna(50.0) * 0.05
 
     # --------------------------------------------------------
     # Final score
     # --------------------------------------------------------
 
-    df["composite_quality_score"] = (
-        profitability
-        + cash_quality
-        + growth
-        + leverage
-    )
+    df["composite_quality_score"] = profitability + cash_quality + growth + leverage
 
-    df["composite_quality_score"] = (
-        df["composite_quality_score"]
-        .clip(0, 100)
-        .round(2)
-    )
+    df["composite_quality_score"] = df["composite_quality_score"].clip(0, 100).round(2)
 
     return df
 
@@ -1129,11 +1015,11 @@ def calculate_composite_quality_score(
 # FILTER ENGINE
 # ============================================================
 
+
 def apply_filters(
     dataframe: pd.DataFrame,
     filters: dict[str, Any] | None = None,
     preset_name: str | None = None,
-    
 ) -> pd.DataFrame:
     """
     Apply screener filters.
@@ -1166,42 +1052,18 @@ def apply_filters(
     # --------------------------------------------------------
 
     minimum_filters = {
-
-        "roe_min":
-            "return_on_equity_pct",
-
-        "fcf_min":
-            "free_cash_flow_cr",
-
-        "revenue_cagr_5yr_min":
-            "revenue_cagr_5yr",
-
-        "pat_cagr_5yr_min":
-            "pat_cagr_5yr",
-
-        "opm_min":
-            "operating_profit_margin_pct",
-
-        "dividend_yield_min":
-            "dividend_yield_pct",
-
-        "icr_min":
-            "interest_coverage",
-
-        "market_cap_min":
-            "market_cap_cr",
-
-        "net_profit_min":
-            "net_profit",
-
-        "eps_cagr_5yr_min":
-            "eps_cagr_5yr",
-
-        "asset_turnover_min":
-            "asset_turnover",
-
-        "sales_min":
-            "sales",
+        "roe_min": "return_on_equity_pct",
+        "fcf_min": "free_cash_flow_cr",
+        "revenue_cagr_5yr_min": "revenue_cagr_5yr",
+        "pat_cagr_5yr_min": "pat_cagr_5yr",
+        "opm_min": "operating_profit_margin_pct",
+        "dividend_yield_min": "dividend_yield_pct",
+        "icr_min": "interest_coverage",
+        "market_cap_min": "market_cap_cr",
+        "net_profit_min": "net_profit",
+        "eps_cagr_5yr_min": "eps_cagr_5yr",
+        "asset_turnover_min": "asset_turnover",
+        "sales_min": "sales",
     }
 
     # --------------------------------------------------------
@@ -1209,18 +1071,10 @@ def apply_filters(
     # --------------------------------------------------------
 
     maximum_filters = {
-
-        "debt_to_equity_max":
-            "debt_to_equity",
-
-        "pe_max":
-            "pe_ratio",
-
-        "pb_max":
-            "pb_ratio",
-
-        "dividend_payout_max":
-            "dividend_payout_ratio_pct",
+        "debt_to_equity_max": "debt_to_equity",
+        "pe_max": "pe_ratio",
+        "pb_max": "pb_ratio",
+        "dividend_payout_max": "dividend_payout_ratio_pct",
     }
 
     # --------------------------------------------------------
@@ -1229,9 +1083,7 @@ def apply_filters(
 
     for filter_name, column in minimum_filters.items():
 
-        threshold = filters.get(
-            filter_name
-        )
+        threshold = filters.get(filter_name)
 
         if threshold is None:
             continue
@@ -1239,13 +1091,9 @@ def apply_filters(
         if column not in df.columns:
             continue
 
-        values = numeric(
-            df[column]
-        )
+        values = numeric(df[column])
 
-        df = df.loc[
-            values >= float(threshold)
-        ].copy()
+        df = df.loc[values >= float(threshold)].copy()
 
     # --------------------------------------------------------
     # Apply maximum filters
@@ -1253,9 +1101,7 @@ def apply_filters(
 
     for filter_name, column in maximum_filters.items():
 
-        threshold = filters.get(
-            filter_name
-        )
+        threshold = filters.get(filter_name)
 
         if threshold is None:
             continue
@@ -1263,85 +1109,52 @@ def apply_filters(
         if column not in df.columns:
             continue
 
-        values = numeric(
-            df[column]
-        )
+        values = numeric(df[column])
 
-        df = df.loc[
-            values <= float(threshold)
-        ].copy()
+        df = df.loc[values <= float(threshold)].copy()
 
     # --------------------------------------------------------
     # Financials D/E rule
     # --------------------------------------------------------
 
-    
     if (
-    filters.get("debt_to_equity_max") is not None
-    and preset_name != "debt_free_blue_chip"
-         ):
+        filters.get("debt_to_equity_max") is not None
+        and preset_name != "debt_free_blue_chip"
+    ):
 
         if "broad_sector" in df.columns:
 
             sector_text = (
-                df["broad_sector"]
-                .fillna("")
-                .astype(str)
-                .str.strip()
-                .str.lower()
+                df["broad_sector"].fillna("").astype(str).str.strip().str.lower()
             )
 
-            financials = (
-                sector_text == "financials"
-            )
+            financials = sector_text == "financials"
 
-            df = df.loc[
-                ~financials
-            ].copy()
+            df = df.loc[~financials].copy()
 
     # --------------------------------------------------------
     # Debt-free ICR rule
     # --------------------------------------------------------
 
-    if filters.get(
-        "icr_min"
-    ) is not None:
+    if filters.get("icr_min") is not None:
 
         if "interest_coverage" in df.columns:
 
-            icr = numeric(
-                df["interest_coverage"]
-            )
+            icr = numeric(df["interest_coverage"])
 
-            de = numeric(
-                df["debt_to_equity"]
-            )
+            de = numeric(df["debt_to_equity"])
 
-            debt_free = (
-                de.fillna(np.nan) == 0
-            )
+            debt_free = de.fillna(np.nan) == 0
 
-            passes = (
-                (icr >= float(
-                    filters["icr_min"]
-                ))
-                | debt_free
-            )
+            passes = (icr >= float(filters["icr_min"])) | debt_free
 
-            df = df.loc[
-                passes
-            ].copy()
-
- 
+            df = df.loc[passes].copy()
 
     # --------------------------------------------------------
     # Sort
     # --------------------------------------------------------
 
-    if (
-        "composite_quality_score"
-        in df.columns
-    ):
+    if "composite_quality_score" in df.columns:
 
         df = df.sort_values(
             "composite_quality_score",
@@ -1349,14 +1162,13 @@ def apply_filters(
             na_position="last",
         )
 
-    return df.reset_index(
-        drop=True
-    )
+    return df.reset_index(drop=True)
 
 
 # ============================================================
 # PRESETS
 # ============================================================
+
 
 def get_preset_filters(
     preset_name: str,
@@ -1367,20 +1179,14 @@ def get_preset_filters(
     if config is None:
         config = load_config()
 
-    presets = config.get(
-        "presets",
-        {}
-    )
+    presets = config.get("presets", {})
 
     if preset_name not in presets:
 
-        available = ", ".join(
-            sorted(presets.keys())
-        )
+        available = ", ".join(sorted(presets.keys()))
 
         raise KeyError(
-            f"Unknown preset '{preset_name}'. "
-            f"Available presets: {available}"
+            f"Unknown preset '{preset_name}'. " f"Available presets: {available}"
         )
 
     preset = presets[preset_name]
@@ -1391,12 +1197,7 @@ def get_preset_filters(
     ):
         return {}
 
-    return dict(
-        preset.get(
-            "filters",
-            {}
-        )
-    )
+    return dict(preset.get("filters", {}))
 
 
 def run_preset(
@@ -1418,14 +1219,16 @@ def run_preset(
     )
 
     return apply_filters(
-    dataframe,
-    filters,
-    preset_name,
-)
+        dataframe,
+        filters,
+        preset_name,
+    )
+
 
 # ============================================================
 # PUBLIC API
 # ============================================================
+
 
 def run_screener(
     filters: dict[str, Any] | None = None,
@@ -1457,6 +1260,7 @@ def run_screener(
 # MAIN
 # ============================================================
 
+
 def main() -> None:
     """Day 15 smoke test."""
 
@@ -1469,25 +1273,15 @@ def main() -> None:
 
     data = load_screener_data()
 
-    print(
-        f"Universe rows: {len(data)}"
-    )
+    print(f"Universe rows: {len(data)}")
 
     if "company_id" in data.columns:
 
-        print(
-            f"Companies: "
-            f"{data['company_id'].nunique()}"
-        )
+        print(f"Companies: " f"{data['company_id'].nunique()}")
 
-    print(
-        "\nAvailable presets:"
-    )
+    print("\nAvailable presets:")
 
-    presets = config.get(
-        "presets",
-        {}
-    )
+    presets = config.get("presets", {})
 
     for preset_name, preset in presets.items():
 
@@ -1505,14 +1299,9 @@ def main() -> None:
 
             display_name = preset_name
 
-        print(
-            f"  - {preset_name}: "
-            f"{display_name}"
-        )
+        print(f"  - {preset_name}: " f"{display_name}")
 
-    print(
-        "\nDay 15 engine loaded successfully."
-    )
+    print("\nDay 15 engine loaded successfully.")
 
 
 if __name__ == "__main__":

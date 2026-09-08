@@ -2,10 +2,10 @@ import re
 
 import pandas as pd
 
-
 # ============================================================
 # NORMALIZE YEAR
 # ============================================================
+
 
 def normalize_year(value):
     """
@@ -42,6 +42,7 @@ def normalize_year(value):
 # NORMALIZE TICKER
 # ============================================================
 
+
 def normalize_ticker(value):
     """
     Normalize a company ticker/symbol.
@@ -68,6 +69,7 @@ def normalize_ticker(value):
 # NORMALIZE COLUMN NAMES
 # ============================================================
 
+
 def normalize_columns(df):
     """
     Normalize DataFrame column names.
@@ -80,8 +82,7 @@ def normalize_columns(df):
     df = df.copy()
 
     df.columns = (
-        df.columns
-        .astype(str)
+        df.columns.astype(str)
         .str.strip()
         .str.lower()
         .str.replace(r"[^a-z0-9]+", "_", regex=True)
@@ -95,6 +96,7 @@ def normalize_columns(df):
 # NORMALIZE NUMERIC COLUMNS
 # ============================================================
 
+
 def normalize_numeric(df, columns):
     """
     Convert selected columns to numeric values.
@@ -106,10 +108,7 @@ def normalize_numeric(df, columns):
 
     for column in columns:
         if column in df.columns:
-            df[column] = pd.to_numeric(
-                df[column],
-                errors="coerce"
-            )
+            df[column] = pd.to_numeric(df[column], errors="coerce")
 
     return df
 
@@ -117,6 +116,7 @@ def normalize_numeric(df, columns):
 # ============================================================
 # NORMALIZE DATE
 # ============================================================
+
 
 def normalize_date(df, column="date"):
     """
@@ -126,9 +126,6 @@ def normalize_date(df, column="date"):
     df = df.copy()
 
     if column in df.columns:
-        df[column] = pd.to_datetime(
-            df[column],
-            errors="coerce"
-        )
+        df[column] = pd.to_datetime(df[column], errors="coerce")
 
     return df

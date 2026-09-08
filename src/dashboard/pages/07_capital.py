@@ -14,7 +14,6 @@ from src.dashboard.utils.db import (
     get_ratios,
 )
 
-
 st.set_page_config(
     page_title="Capital Allocation",
     page_icon="💰",
@@ -38,12 +37,7 @@ if companies.empty:
     st.error("No companies found.")
     st.stop()
 
-company_ids = (
-    companies["id"]
-    .dropna()
-    .astype(str)
-    .tolist()
-)
+company_ids = companies["id"].dropna().astype(str).tolist()
 
 selected_ticker = st.selectbox(
     "Select Company",
@@ -58,9 +52,7 @@ selected_ticker = st.selectbox(
 ratios = get_ratios(selected_ticker)
 
 if ratios.empty:
-    st.warning(
-        f"No financial data found for {selected_ticker}."
-    )
+    st.warning(f"No financial data found for {selected_ticker}.")
     st.stop()
 
 ratios = ratios.copy()
@@ -83,9 +75,7 @@ capital_columns = [
 ]
 
 available_capital_columns = [
-    column
-    for column in capital_columns
-    if column in ratios.columns
+    column for column in capital_columns if column in ratios.columns
 ]
 
 if available_capital_columns:
@@ -100,6 +90,8 @@ if available_capital_columns:
         latest = ratios.iloc[-1]
 else:
     latest = ratios.iloc[-1]
+
+
 def get_value(column):
     if column not in latest.index:
         return None
@@ -210,11 +202,7 @@ with col2:
         )
 
 with col3:
-    if (
-        pd.notna(fcf)
-        and pd.notna(cfo)
-        and cfo != 0
-    ):
+    if pd.notna(fcf) and pd.notna(cfo) and cfo != 0:
         fcf_conversion = (fcf / cfo) * 100
 
         st.metric(
@@ -242,17 +230,11 @@ history_columns = [
     "dividend_payout_ratio_pct",
 ]
 
-available_columns = [
-    column
-    for column in history_columns
-    if column in ratios.columns
-]
+available_columns = [column for column in history_columns if column in ratios.columns]
 
 if len(available_columns) > 1:
 
-    history = ratios[
-        available_columns
-    ].copy()
+    history = ratios[available_columns].copy()
 
     for column in available_columns:
         if column != "year":
@@ -262,11 +244,7 @@ if len(available_columns) > 1:
             )
 
     history = history.dropna(
-        subset=[
-            column
-            for column in available_columns
-            if column != "year"
-        ],
+        subset=[column for column in available_columns if column != "year"],
         how="all",
     )
 
@@ -286,9 +264,7 @@ if len(available_columns) > 1:
         )
 
 else:
-    st.info(
-        "Historical capital allocation data is not available."
-    )
+    st.info("Historical capital allocation data is not available.")
 
 
 # ---------------------------------------------------------
@@ -301,51 +277,33 @@ signals = []
 
 if pd.notna(fcf):
     if fcf > 0:
-        signals.append(
-            "✅ Positive free cash flow"
-        )
+        signals.append("✅ Positive free cash flow")
     else:
-        signals.append(
-            "⚠️ Negative free cash flow"
-        )
+        signals.append("⚠️ Negative free cash flow")
 
 if pd.notna(cfo) and pd.notna(fcf):
     if cfo > 0 and fcf > 0:
-        signals.append(
-            "✅ Operating cash generation supports free cash flow"
-        )
+        signals.append("✅ Operating cash generation supports free cash flow")
 
 if pd.notna(dividend_payout):
     if dividend_payout <= 50:
-        signals.append(
-            "✅ Moderate dividend payout"
-        )
+        signals.append("✅ Moderate dividend payout")
     elif dividend_payout <= 80:
-        signals.append(
-            "🟡 Higher dividend payout"
-        )
+        signals.append("🟡 Higher dividend payout")
     else:
-        signals.append(
-            "⚠️ Very high dividend payout"
-        )
+        signals.append("⚠️ Very high dividend payout")
 
 if pd.notna(roe):
     if roe >= 15:
-        signals.append(
-            "✅ ROE indicates strong capital efficiency"
-        )
+        signals.append("✅ ROE indicates strong capital efficiency")
     else:
-        signals.append(
-            "🟡 ROE is below the 15% reference level"
-        )
+        signals.append("🟡 ROE is below the 15% reference level")
 
 if signals:
     for signal in signals:
         st.write(signal)
 else:
-    st.info(
-        "No capital allocation signals available."
-    )
+    st.info("No capital allocation signals available.")
 
 
 # ---------------------------------------------------------
@@ -354,9 +312,7 @@ else:
 
 st.markdown("### 📥 Export")
 
-export_data = ratios.to_csv(
-    index=False
-).encode("utf-8")
+export_data = ratios.to_csv(index=False).encode("utf-8")
 
 st.download_button(
     label="Download Capital Allocation CSV",

@@ -16,7 +16,6 @@ from src.dashboard.utils.db import (
     get_sectors,
 )
 
-
 st.set_page_config(
     page_title="Nifty 100 Analytics",
     layout="wide",
@@ -108,6 +107,7 @@ else:
 # KPI Helpers
 # --------------------------------------------------
 
+
 def safe_median(df, column):
     if column not in df.columns:
         return None
@@ -143,6 +143,7 @@ def fmt_number(value, suffix=""):
         return "N/A"
 
     return f"{value:.2f}{suffix}"
+
 
 # --------------------------------------------------
 # KPI Calculations
@@ -194,9 +195,7 @@ if "debt_to_equity" in ratios.columns:
         errors="coerce",
     )
 
-    debt_free_count = int(
-        (debt_values <= 0).sum()
-    )
+    debt_free_count = int((debt_values <= 0).sum())
 
 
 # --------------------------------------------------
@@ -232,11 +231,7 @@ with col4:
 with col5:
     st.metric(
         "Median Revenue CAGR",
-        (
-            "N/A"
-            if pd.isna(median_revenue_cagr)
-            else f"{median_revenue_cagr:.2f}%"
-        ),
+        ("N/A" if pd.isna(median_revenue_cagr) else f"{median_revenue_cagr:.2f}%"),
     )
 
 with col6:
@@ -305,9 +300,7 @@ try:
         st.info("Sector data is not available.")
 
 except Exception as error:
-    st.warning(
-        f"Unable to load sector breakdown: {error}"
-    )
+    st.warning(f"Unable to load sector breakdown: {error}")
 
 
 # --------------------------------------------------
@@ -325,16 +318,9 @@ if not ratios.empty:
         "composite_quality_score",
     ]
 
-    available_columns = [
-        column
-        for column in top_columns
-        if column in ratios.columns
-    ]
+    available_columns = [column for column in top_columns if column in ratios.columns]
 
-    top5 = (
-        ratios[available_columns]
-        .copy()
-    )
+    top5 = ratios[available_columns].copy()
 
     if "composite_quality_score" in top5.columns:
 
@@ -344,9 +330,7 @@ if not ratios.empty:
         )
 
         top5 = (
-            top5.dropna(
-                subset=["composite_quality_score"]
-            )
+            top5.dropna(subset=["composite_quality_score"])
             .sort_values(
                 "composite_quality_score",
                 ascending=False,
@@ -361,14 +345,10 @@ if not ratios.empty:
         )
 
     else:
-        st.info(
-            "Composite quality score is not available."
-        )
+        st.info("Composite quality score is not available.")
 
 else:
-    st.info(
-        f"No ratio data available for {selected_year}."
-    )
+    st.info(f"No ratio data available for {selected_year}.")
 
 
 # --------------------------------------------------

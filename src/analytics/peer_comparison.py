@@ -14,7 +14,6 @@ from typing import Optional
 
 import pandas as pd
 
-
 # ============================================================
 # CONFIG
 # ============================================================
@@ -49,6 +48,7 @@ LOWER_IS_BETTER = {
 # ============================================================
 # DATABASE HELPERS
 # ============================================================
+
 
 def get_connection() -> sqlite3.Connection:
     """Return a connection to the project SQLite database."""
@@ -101,6 +101,7 @@ def get_peer_companies(peer_group_name: str) -> pd.DataFrame:
 # FINANCIAL DATA
 # ============================================================
 
+
 def get_latest_financial_ratios(
     company_ids: list[str],
 ) -> pd.DataFrame:
@@ -141,9 +142,7 @@ def get_latest_financial_ratios(
 def get_company_names(company_ids: list[str]) -> pd.DataFrame:
     """Return company names for the supplied company IDs."""
     if not company_ids:
-        return pd.DataFrame(
-            columns=["company_id", "company_name"]
-        )
+        return pd.DataFrame(columns=["company_id", "company_name"])
 
     placeholders = ",".join("?" for _ in company_ids)
 
@@ -165,6 +164,7 @@ def get_company_names(company_ids: list[str]) -> pd.DataFrame:
 # PEER COMPARISON
 # ============================================================
 
+
 def peer_comparison(
     company_id: str,
 ) -> pd.DataFrame:
@@ -182,16 +182,12 @@ def peer_comparison(
     peer_group_name = get_peer_group(company_id)
 
     if peer_group_name is None:
-        raise ValueError(
-            f"Company '{company_id}' is not assigned to a peer group."
-        )
+        raise ValueError(f"Company '{company_id}' is not assigned to a peer group.")
 
     peers = get_peer_companies(peer_group_name)
 
     if peers.empty:
-        raise ValueError(
-            f"No companies found for peer group '{peer_group_name}'."
-        )
+        raise ValueError(f"No companies found for peer group '{peer_group_name}'.")
 
     company_ids = peers["company_id"].astype(str).tolist()
 
@@ -199,8 +195,7 @@ def peer_comparison(
 
     if ratios.empty:
         raise ValueError(
-            f"No financial-ratio data found for peer group "
-            f"'{peer_group_name}'."
+            f"No financial-ratio data found for peer group " f"'{peer_group_name}'."
         )
 
     names = get_company_names(company_ids)
@@ -215,9 +210,7 @@ def peer_comparison(
         how="left",
     )
 
-    result["selected_company"] = (
-        result["company_id"].str.upper() == company_id
-    )
+    result["selected_company"] = result["company_id"].str.upper() == company_id
 
     result["peer_group_name"] = peer_group_name
 
@@ -247,20 +240,23 @@ def peer_comparison(
     ]
 
     available_columns = [
-        column
-        for column in preferred_columns
-        if column in result.columns
+        column for column in preferred_columns if column in result.columns
     ]
 
-    return result[available_columns].sort_values(
-        by=["selected_company", "is_benchmark", "company_id"],
-        ascending=[False, False, True],
-    ).reset_index(drop=True)
+    return (
+        result[available_columns]
+        .sort_values(
+            by=["selected_company", "is_benchmark", "company_id"],
+            ascending=[False, False, True],
+        )
+        .reset_index(drop=True)
+    )
 
 
 # ============================================================
 # RANKING
 # ============================================================
+
 
 def add_peer_ranks(
     comparison: pd.DataFrame,
@@ -274,22 +270,16 @@ def add_peer_ranks(
 
     for metric in HIGHER_IS_BETTER:
         if metric in result.columns:
-            result[f"{metric}_rank"] = (
-                result[metric]
-                .rank(
-                    ascending=False,
-                    method="min",
-                )
+            result[f"{metric}_rank"] = result[metric].rank(
+                ascending=False,
+                method="min",
             )
 
     for metric in LOWER_IS_BETTER:
         if metric in result.columns:
-            result[f"{metric}_rank"] = (
-                result[metric]
-                .rank(
-                    ascending=True,
-                    method="min",
-                )
+            result[f"{metric}_rank"] = result[metric].rank(
+                ascending=True,
+                method="min",
             )
 
     return result
@@ -299,6 +289,7 @@ def add_peer_ranks(
 # SUMMARY
 # ============================================================
 
+
 def peer_summary(company_id: str) -> dict:
     """
     Return a compact summary for a company's peer group.
@@ -307,9 +298,7 @@ def peer_summary(company_id: str) -> dict:
     comparison = peer_comparison(company_id)
     ranked = add_peer_ranks(comparison)
 
-    selected = ranked[
-        ranked["selected_company"] == True
-    ]
+    selected = ranked[ranked["selected_company"] == True]
 
     if selected.empty:
         raise ValueError(
@@ -318,20 +307,14 @@ def peer_summary(company_id: str) -> dict:
 
     selected_row = selected.iloc[0]
 
-    benchmark = ranked[
-        ranked["is_benchmark"] == 1
-    ]
+    benchmark = ranked[ranked["is_benchmark"] == 1]
 
     benchmark_company = None
 
     if not benchmark.empty:
         benchmark_company = benchmark.iloc[0]["company_id"]
 
-    rank_columns = [
-        column
-        for column in ranked.columns
-        if column.endswith("_rank")
-    ]
+    rank_columns = [column for column in ranked.columns if column.endswith("_rank")]
 
     ranks = {}
 
@@ -342,15 +325,13 @@ def peer_summary(company_id: str) -> dict:
             ranks[column.removesuffix("_rank")] = int(value)
 
     return {
-    "company_id": company_id,
-    "peer_group_name": selected_row["peer_group_name"],
-    "peer_count": len(ranked),
-    "benchmark_company": benchmark_company,
-    "latest_year": (
-        selected_row["year"]
-        if pd.notna(selected_row["year"])
-        else None
-    ),
+        "company_id": company_id,
+        "peer_group_name": selected_row["peer_group_name"],
+        "peer_count": len(ranked),
+        "benchmark_company": benchmark_company,
+        "latest_year": (
+            selected_row["year"] if pd.notna(selected_row["year"]) else None
+        ),
         "composite_quality_score": (
             float(selected_row["composite_quality_score"])
             if (

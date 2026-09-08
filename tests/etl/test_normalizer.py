@@ -8,10 +8,10 @@ from src.etl.normalizer import (
     normalize_year,
 )
 
-
 # ============================================================
 # normalize_year() — 20 TESTS
 # ============================================================
+
 
 def test_normalize_year_integer():
     assert normalize_year(2024) == 2024
@@ -97,6 +97,7 @@ def test_normalize_year_multiple_years():
 # normalize_ticker() — 15 TESTS
 # ============================================================
 
+
 def test_normalize_ticker_uppercase():
     assert normalize_ticker("tcs") == "TCS"
 
@@ -161,6 +162,7 @@ def test_normalize_ticker_numeric():
 # normalize_columns() — 3 TESTS
 # ============================================================
 
+
 def test_normalize_columns_spaces():
     df = pd.DataFrame(columns=[" Company Name "])
 
@@ -189,10 +191,9 @@ def test_normalize_columns_lowercase():
 # normalize_numeric() — 2 TESTS
 # ============================================================
 
+
 def test_normalize_numeric():
-    df = pd.DataFrame({
-        "sales": ["100", "200", "300"]
-    })
+    df = pd.DataFrame({"sales": ["100", "200", "300"]})
 
     result = normalize_numeric(df, ["sales"])
 
@@ -200,9 +201,7 @@ def test_normalize_numeric():
 
 
 def test_normalize_numeric_invalid_value():
-    df = pd.DataFrame({
-        "sales": ["100", "invalid", "300"]
-    })
+    df = pd.DataFrame({"sales": ["100", "invalid", "300"]})
 
     result = normalize_numeric(df, ["sales"])
 
@@ -215,10 +214,9 @@ def test_normalize_numeric_invalid_value():
 # normalize_date() — 2 TESTS
 # ============================================================
 
+
 def test_normalize_date():
-    df = pd.DataFrame({
-        "date": ["2020-01-01", "2021-01-01"]
-    })
+    df = pd.DataFrame({"date": ["2020-01-01", "2021-01-01"]})
 
     result = normalize_date(df)
 
@@ -226,9 +224,7 @@ def test_normalize_date():
 
 
 def test_normalize_date_invalid_value():
-    df = pd.DataFrame({
-        "date": ["2020-01-01", "invalid"]
-    })
+    df = pd.DataFrame({"date": ["2020-01-01", "invalid"]})
 
     result = normalize_date(df)
 

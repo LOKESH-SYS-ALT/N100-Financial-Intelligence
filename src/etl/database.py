@@ -3,7 +3,6 @@ import sqlite3
 
 from src.etl.loader import load_all_datasets
 
-
 # ============================================================
 # PROJECT PATHS
 # ============================================================
@@ -37,22 +36,19 @@ TABLES = {
 # NORMALIZE COMPANY IDs
 # ============================================================
 
+
 def normalize_company_ids(series):
     """
     Normalize company IDs for universe comparison.
     """
 
-    return (
-        series
-        .astype(str)
-        .str.strip()
-        .str.upper()
-    )
+    return series.astype(str).str.strip().str.upper()
 
 
 # ============================================================
 # BUILD MASTER ANALYTICAL UNIVERSE
 # ============================================================
+
 
 def get_master_universe(data):
     """
@@ -64,18 +60,13 @@ def get_master_universe(data):
 
     sectors = data["sectors"]
 
-    universe = set(
-        normalize_company_ids(
-            sectors["company_id"]
-        )
-    )
+    universe = set(normalize_company_ids(sectors["company_id"]))
 
     print(f"Master analytical universe: {len(universe)} companies")
 
     if len(universe) != 92:
         raise ValueError(
-            f"Expected 92 companies in analytical universe, "
-            f"found {len(universe)}"
+            f"Expected 92 companies in analytical universe, " f"found {len(universe)}"
         )
 
     return universe
@@ -84,6 +75,7 @@ def get_master_universe(data):
 # ============================================================
 # FILTER DATASETS TO MASTER UNIVERSE
 # ============================================================
+
 
 def filter_to_master_universe(data, universe):
     """
@@ -107,9 +99,7 @@ def filter_to_master_universe(data, universe):
 
             ids = normalize_company_ids(df["id"])
 
-            df = df.loc[
-                ids.isin(universe)
-            ].copy()
+            df = df.loc[ids.isin(universe)].copy()
 
         # ----------------------------------------------------
         # All datasets containing company_id
@@ -119,18 +109,13 @@ def filter_to_master_universe(data, universe):
 
             ids = normalize_company_ids(df["company_id"])
 
-            df = df.loc[
-                ids.isin(universe)
-            ].copy()
+            df = df.loc[ids.isin(universe)].copy()
 
         # ----------------------------------------------------
         # Store filtered dataframe
         # ----------------------------------------------------
 
-        filtered[dataset_name] = (
-            df
-            .reset_index(drop=True)
-        )
+        filtered[dataset_name] = df.reset_index(drop=True)
 
     return filtered
 
@@ -138,6 +123,7 @@ def filter_to_master_universe(data, universe):
 # ============================================================
 # CREATE DATABASE
 # ============================================================
+
 
 def create_database():
 
@@ -165,10 +151,7 @@ def create_database():
     # Filter all datasets
     # --------------------------------------------------------
 
-    data = filter_to_master_universe(
-        data,
-        universe
-    )
+    data = filter_to_master_universe(data, universe)
 
     print()
     print("Filtered dataset sizes:")
@@ -176,19 +159,13 @@ def create_database():
 
     for dataset_name, df in data.items():
 
-        print(
-            f"{dataset_name:<20} : "
-            f"{len(df):>6} rows"
-        )
+        print(f"{dataset_name:<20} : " f"{len(df):>6} rows")
 
     # --------------------------------------------------------
     # Create data directory
     # --------------------------------------------------------
 
-    DB_PATH.parent.mkdir(
-        parents=True,
-        exist_ok=True
-    )
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
     # --------------------------------------------------------
     # Remove old database
@@ -242,13 +219,12 @@ def create_database():
 # VERIFY DATABASE
 # ============================================================
 
+
 def verify_database():
 
     if not DB_PATH.exists():
 
-        raise FileNotFoundError(
-            f"Database not found: {DB_PATH}"
-        )
+        raise FileNotFoundError(f"Database not found: {DB_PATH}")
 
     con = sqlite3.connect(DB_PATH)
 
@@ -265,10 +241,7 @@ def verify_database():
         ORDER BY name
         """
 
-        tables = [
-            row[0]
-            for row in con.execute(query).fetchall()
-        ]
+        tables = [row[0] for row in con.execute(query).fetchall()]
 
         # ----------------------------------------------------
         # Print database report
@@ -286,14 +259,9 @@ def verify_database():
 
         for table in tables:
 
-            count = con.execute(
-                f'SELECT COUNT(*) FROM "{table}"'
-            ).fetchone()[0]
+            count = con.execute(f'SELECT COUNT(*) FROM "{table}"').fetchone()[0]
 
-            print(
-                f"{table:<20} : "
-                f"{count:>6} rows"
-            )
+            print(f"{table:<20} : " f"{count:>6} rows")
 
         print("-" * 70)
         print(f"Total tables : {len(tables)}")
@@ -302,13 +270,9 @@ def verify_database():
         # Verify company universe
         # ----------------------------------------------------
 
-        company_count = con.execute(
-            "SELECT COUNT(*) FROM companies"
-        ).fetchone()[0]
+        company_count = con.execute("SELECT COUNT(*) FROM companies").fetchone()[0]
 
-        sector_count = con.execute(
-            "SELECT COUNT(*) FROM sectors"
-        ).fetchone()[0]
+        sector_count = con.execute("SELECT COUNT(*) FROM sectors").fetchone()[0]
 
         print()
         print("UNIVERSE CHECK")

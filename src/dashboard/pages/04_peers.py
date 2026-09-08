@@ -24,10 +24,7 @@ st.set_page_config(
 )
 
 st.title("👥 Peer Comparison")
-st.caption(
-    "Compare a Nifty 100 company against companies "
-    "in the same peer group."
-)
+st.caption("Compare a Nifty 100 company against companies " "in the same peer group.")
 
 companies = get_companies()
 
@@ -68,9 +65,7 @@ except Exception as error:
     st.stop()
 
 if peers.empty:
-    st.warning(
-        f"No peer comparison data found for {selected_ticker}."
-    )
+    st.warning(f"No peer comparison data found for {selected_ticker}.")
     st.stop()
 
 try:
@@ -153,11 +148,7 @@ preferred_columns = [
     "composite_quality_score",
 ]
 
-display_columns = [
-    column
-    for column in preferred_columns
-    if column in ranked.columns
-]
+display_columns = [column for column in preferred_columns if column in ranked.columns]
 
 if display_columns:
     st.dataframe(

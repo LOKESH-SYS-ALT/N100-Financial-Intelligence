@@ -12,10 +12,10 @@ Day 11:
 
 from typing import Optional
 
-
 # ============================================================
 # FREE CASH FLOW
 # ============================================================
+
 
 def free_cash_flow(
     operating_activity: float,
@@ -32,6 +32,7 @@ def free_cash_flow(
 # ============================================================
 # CFO QUALITY
 # ============================================================
+
 
 def cfo_pat_ratio(
     cash_from_operations: float,
@@ -98,6 +99,7 @@ def cfo_quality_label(
 # CAPEX INTENSITY
 # ============================================================
 
+
 def capex_intensity(
     investing_activity: float,
     sales: float,
@@ -139,6 +141,7 @@ def capex_intensity_label(
 # FCF CONVERSION
 # ============================================================
 
+
 def fcf_conversion_rate(
     free_cash_flow_value: float,
     operating_profit: float,
@@ -158,6 +161,7 @@ def fcf_conversion_rate(
 # SIGN HELPERS
 # ============================================================
 
+
 def cash_flow_sign(value: float) -> str:
     """
     Convert cash-flow value into + or - sign.
@@ -173,6 +177,7 @@ def cash_flow_sign(value: float) -> str:
 # ============================================================
 # CAPITAL ALLOCATION
 # ============================================================
+
 
 def capital_allocation_pattern(
     cfo: float,
@@ -204,10 +209,7 @@ def capital_allocation_pattern(
     )
 
     if pattern == ("+", "-", "-"):
-        if (
-            cfo_pat_ratio_value is not None
-            and cfo_pat_ratio_value > 1.0
-        ):
+        if cfo_pat_ratio_value is not None and cfo_pat_ratio_value > 1.0:
             return "Shareholder Returns"
 
         return "Reinvestor"
@@ -237,6 +239,7 @@ def capital_allocation_pattern(
 # ALL DAY-11 KPIs
 # ============================================================
 
+
 def calculate_cashflow_kpis(
     operating_activity: float,
     investing_activity: float,
@@ -262,13 +265,9 @@ def calculate_cashflow_kpis(
     return {
         "free_cash_flow_cr": fcf,
         "cfo_pat_ratio": cfo_pat_ratio_value,
-        "cfo_quality_label": cfo_quality_label(
-            cfo_pat_ratio_value
-        ),
+        "cfo_quality_label": cfo_quality_label(cfo_pat_ratio_value),
         "capex_intensity_pct": capex,
-        "capex_intensity_label": capex_intensity_label(
-            capex
-        ),
+        "capex_intensity_label": capex_intensity_label(capex),
         "fcf_conversion_rate_pct": fcf_conversion_rate(
             fcf,
             operating_profit,
@@ -281,6 +280,7 @@ def calculate_cashflow_kpis(
         ),
     }
 
+
 # ============================================================
 # SPRINT 5 - DAY 31
 # CASH FLOW INTELLIGENCE
@@ -289,7 +289,6 @@ def calculate_cashflow_kpis(
 from pathlib import Path
 import sqlite3
 import pandas as pd
-
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DB_PATH = PROJECT_ROOT / "data" / "nifty100.db"
@@ -341,14 +340,14 @@ def load_day31_data():
         conn,
     )
     sectors = pd.read_sql(
-    """
+        """
     SELECT
         company_id,
         broad_sector
     FROM sectors
     """,
-    conn,
-)
+        conn,
+    )
     conn.close()
 
     return cashflow, pnl, balance, sectors
@@ -363,10 +362,9 @@ def calculate_fcf_cagr_5yr(company_df):
 
     df = company_df.copy()
 
-    df["fcf"] = (
-        pd.to_numeric(df["operating_activity"], errors="coerce")
-        + pd.to_numeric(df["investing_activity"], errors="coerce")
-    )
+    df["fcf"] = pd.to_numeric(
+        df["operating_activity"], errors="coerce"
+    ) + pd.to_numeric(df["investing_activity"], errors="coerce")
 
     df = df.dropna(subset=["fcf"])
 
@@ -395,10 +393,7 @@ def calculate_distress_flag(latest):
     CFO < 0 AND CFF > 0
     """
 
-    return bool(
-        latest["operating_activity"] < 0
-        and latest["financing_activity"] > 0
-    )
+    return bool(latest["operating_activity"] < 0 and latest["financing_activity"] > 0)
 
 
 def calculate_deleveraging_flag(company_cashflow, company_balance):
@@ -450,17 +445,11 @@ def build_cashflow_intelligence():
 
     for company_id in companies:
 
-        cf = cashflow[
-            cashflow["company_id"] == company_id
-        ].copy()
+        cf = cashflow[cashflow["company_id"] == company_id].copy()
 
-        pl = pnl[
-            pnl["company_id"] == company_id
-        ].copy()
+        pl = pnl[pnl["company_id"] == company_id].copy()
 
-        bs = balance[
-            balance["company_id"] == company_id
-        ].copy()
+        bs = balance[balance["company_id"] == company_id].copy()
 
         if cf.empty:
             continue
@@ -473,16 +462,12 @@ def build_cashflow_intelligence():
         # FCF
         # ----------------------------------------------------
 
-        cf["fcf"] = (
-            pd.to_numeric(
-                cf["operating_activity"],
-                errors="coerce",
-            )
-            +
-            pd.to_numeric(
-                cf["investing_activity"],
-                errors="coerce",
-            )
+        cf["fcf"] = pd.to_numeric(
+            cf["operating_activity"],
+            errors="coerce",
+        ) + pd.to_numeric(
+            cf["investing_activity"],
+            errors="coerce",
         )
 
         # ----------------------------------------------------
@@ -529,24 +514,15 @@ def build_cashflow_intelligence():
             ]
         )
 
-        merged = merged[
-            merged["net_profit"] != 0
-        ]
+        merged = merged[merged["net_profit"] != 0]
 
         if not merged.empty:
 
-            cfo_pat_values = (
-                merged["operating_activity"]
-                / merged["net_profit"]
-            )
+            cfo_pat_values = merged["operating_activity"] / merged["net_profit"]
 
-            cfo_quality_score = (
-                cfo_pat_values.mean()
-            )
+            cfo_quality_score = cfo_pat_values.mean()
 
-            cfo_quality = cfo_quality_label(
-                cfo_quality_score
-            )
+            cfo_quality = cfo_quality_label(cfo_quality_score)
 
         else:
 
@@ -557,11 +533,7 @@ def build_cashflow_intelligence():
         # CAPEX INTENSITY
         # ----------------------------------------------------
 
-        latest_pl = (
-            pl.sort_values("year").iloc[-1]
-            if not pl.empty
-            else None
-        )
+        latest_pl = pl.sort_values("year").iloc[-1] if not pl.empty else None
 
         capex_intensity_pct = None
         capex_label = "Not Available"
@@ -575,27 +547,15 @@ def build_cashflow_intelligence():
 
             if pd.notna(sales) and sales != 0:
 
-                capex_intensity_pct = (
-                    abs(
-                        latest_cf[
-                            "investing_activity"
-                        ]
-                    )
-                    / sales
-                    * 100
-                )
+                capex_intensity_pct = abs(latest_cf["investing_activity"]) / sales * 100
 
-                capex_label = capex_intensity_label(
-                    capex_intensity_pct
-                )
+                capex_label = capex_intensity_label(capex_intensity_pct)
 
         # ----------------------------------------------------
         # FCF CAGR
         # ----------------------------------------------------
 
-        fcf_cagr = calculate_fcf_cagr_5yr(
-            five_year_cf
-        )
+        fcf_cagr = calculate_fcf_cagr_5yr(five_year_cf)
 
         # ----------------------------------------------------
         # FCF CONVERSION
@@ -610,39 +570,27 @@ def build_cashflow_intelligence():
                 errors="coerce",
             )
 
-            latest_fcf = (
-    pd.to_numeric(latest_cf["operating_activity"], errors="coerce")
-    + pd.to_numeric(latest_cf["investing_activity"], errors="coerce")
-)
+            latest_fcf = pd.to_numeric(
+                latest_cf["operating_activity"], errors="coerce"
+            ) + pd.to_numeric(latest_cf["investing_activity"], errors="coerce")
 
-            if (
-                pd.notna(operating_profit)
-                and operating_profit != 0
-            ):
+            if pd.notna(operating_profit) and operating_profit != 0:
 
-                fcf_conversion_pct = (
-                    latest_fcf
-                    / operating_profit
-                    * 100
-                )
+                fcf_conversion_pct = latest_fcf / operating_profit * 100
 
         # ----------------------------------------------------
         # DISTRESS
         # ----------------------------------------------------
 
-        distress_flag = calculate_distress_flag(
-            latest_cf
-        )
+        distress_flag = calculate_distress_flag(latest_cf)
 
         # ----------------------------------------------------
         # DELEVERAGING
         # ----------------------------------------------------
 
-        deleveraging_flag = (
-            calculate_deleveraging_flag(
-                cf,
-                bs,
-            )
+        deleveraging_flag = calculate_deleveraging_flag(
+            cf,
+            bs,
         )
 
         # ----------------------------------------------------
@@ -659,9 +607,7 @@ def build_cashflow_intelligence():
         # SECTOR
         # ----------------------------------------------------
 
-        sector_row = sectors[
-            sectors["company_id"] == company_id
-        ]
+        sector_row = sectors[sectors["company_id"] == company_id]
 
         if not sector_row.empty:
             sector = sector_row.iloc[0]["broad_sector"]
@@ -683,7 +629,6 @@ def build_cashflow_intelligence():
                 "capital_allocation_label": capital_label,
             }
         )
-       
 
     return pd.DataFrame(results)
 
@@ -700,10 +645,7 @@ def save_cashflow_intelligence():
 
     result = build_cashflow_intelligence()
 
-    excel_path = (
-        OUTPUT_DIR
-        / "cashflow_intelligence.xlsx"
-    )
+    excel_path = OUTPUT_DIR / "cashflow_intelligence.xlsx"
 
     result.to_excel(
         excel_path,
@@ -714,14 +656,9 @@ def save_cashflow_intelligence():
     # DISTRESS ALERTS
     # --------------------------------------------------------
 
-    distress = result[
-        result["distress_flag"] == True
-    ].copy()
+    distress = result[result["distress_flag"] == True].copy()
 
-    distress_path = (
-        OUTPUT_DIR
-        / "distress_alerts.csv"
-    )
+    distress_path = OUTPUT_DIR / "distress_alerts.csv"
 
     distress.to_csv(
         distress_path,
@@ -736,21 +673,13 @@ def save_cashflow_intelligence():
     print("DAY 31 - CASH FLOW INTELLIGENCE")
     print("=" * 60)
 
-    print(
-        f"Companies: {len(result)}"
-    )
+    print(f"Companies: {len(result)}")
 
-    print(
-        f"Distress alerts: {len(distress)}"
-    )
+    print(f"Distress alerts: {len(distress)}")
 
-    print(
-        f"Excel: {excel_path}"
-    )
+    print(f"Excel: {excel_path}")
 
-    print(
-        f"CSV: {distress_path}"
-    )
+    print(f"CSV: {distress_path}")
 
     print("=" * 60)
 
@@ -767,11 +696,7 @@ def save_cashflow_intelligence():
         "capital_allocation_label",
     ]
 
-    missing = [
-        col
-        for col in required_columns
-        if col not in result.columns
-    ]
+    missing = [col for col in required_columns if col not in result.columns]
 
     if missing:
         print(
@@ -779,14 +704,9 @@ def save_cashflow_intelligence():
             missing,
         )
     else:
-        print(
-            "SUCCESS: All required columns present."
-        )
+        print("SUCCESS: All required columns present.")
 
-    print(
-        f"Unique companies: "
-        f"{result['company_id'].nunique()}"
-    )
+    print(f"Unique companies: " f"{result['company_id'].nunique()}")
 
     print("=" * 60)
 

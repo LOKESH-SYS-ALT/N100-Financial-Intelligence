@@ -41,35 +41,47 @@ def test_opm_cross_check_mismatch():
 
 
 def test_roe_normal():
-    assert return_on_equity(
-        200,
-        500,
-        500,
-    ) == 20.0
+    assert (
+        return_on_equity(
+            200,
+            500,
+            500,
+        )
+        == 20.0
+    )
 
 
 def test_roe_negative_equity():
-    assert return_on_equity(
-        200,
-        -600,
-        500,
-    ) is None
+    assert (
+        return_on_equity(
+            200,
+            -600,
+            500,
+        )
+        is None
+    )
 
 
 def test_roce_normal():
-    assert return_on_capital_employed(
-        200,
-        500,
-        500,
-        1000,
-    ) == 10.0
+    assert (
+        return_on_capital_employed(
+            200,
+            500,
+            500,
+            1000,
+        )
+        == 10.0
+    )
 
 
 def test_roa_zero_assets():
-    assert return_on_assets(
-        200,
-        0,
-    ) is None
+    assert (
+        return_on_assets(
+            200,
+            0,
+        )
+        is None
+    )
 
 
 def test_profitability_ratios_integration():

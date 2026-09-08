@@ -3,13 +3,13 @@ from pathlib import Path
 
 import pandas as pd
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DB_PATH = PROJECT_ROOT / "data" / "nifty100.db"
 
 
 def get_connection():
     return sqlite3.connect(DB_PATH)
+
 
 def get_valuation_data():
     conn = get_connection()
@@ -42,16 +42,15 @@ def get_valuation_data():
 
     return df
 
+
 def calculate_fcf_yield(df):
     df = df.copy()
 
-    df["fcf_yield_pct"] = (
-        df["free_cash_flow_cr"]
-        / df["market_cap_crore"]
-        * 100
-    )
+    df["fcf_yield_pct"] = df["free_cash_flow_cr"] / df["market_cap_crore"] * 100
 
     return df
+
+
 def pe_flag(pe):
     if pd.isna(pe):
         return "N/A"
@@ -111,9 +110,7 @@ def export_valuation_summary(
     df = build_valuation_summary()
 
     if df.empty:
-        raise ValueError(
-            "No valuation data available."
-        )
+        raise ValueError("No valuation data available.")
 
     output_file = PROJECT_ROOT / output_path
 
@@ -133,9 +130,7 @@ def export_valuation_summary(
 if __name__ == "__main__":
     summary = build_valuation_summary()
 
-    print(
-        f"Valuation rows: {len(summary)}"
-    )
+    print(f"Valuation rows: {len(summary)}")
 
     if not summary.empty:
         print(
@@ -148,11 +143,11 @@ if __name__ == "__main__":
                     "pe_flag",
                     "valuation_label",
                 ]
-            ].head(10).to_string(index=False)
+            ]
+            .head(10)
+            .to_string(index=False)
         )
 
     output_file = export_valuation_summary()
 
-    print(
-        f"Excel created: {output_file}"
-    )
+    print(f"Excel created: {output_file}")

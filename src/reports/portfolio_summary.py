@@ -4,7 +4,14 @@ import pandas as pd
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Paragraph,
+    Spacer,
+    Table,
+    TableStyle,
+    PageBreak,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DB = PROJECT_ROOT / "data" / "nifty100.db"
@@ -13,6 +20,7 @@ OUT.mkdir(parents=True, exist_ok=True)
 
 PDF = OUT / "portfolio_summary.pdf"
 
+
 def num(value):
     try:
         if pd.isna(value):
@@ -20,6 +28,7 @@ def num(value):
         return f"{float(value):.2f}"
     except:
         return "N/A"
+
 
 def arrow(current, previous):
     try:
@@ -40,30 +49,24 @@ def arrow(current, previous):
     except:
         return "N/A"
 
+
 def get_latest_rows(ratios):
     rows = []
 
     for ticker in sorted(ratios["company_id"].astype(str).unique()):
-        df = ratios[
-            ratios["company_id"].astype(str) == ticker
-        ].copy()
+        df = ratios[ratios["company_id"].astype(str) == ticker].copy()
 
         df["year_text"] = df["year"].astype(str)
 
         annual = df[
-            df["year_text"].str.match(
-                r"^Mar\s+\d{4}$",
-                case=False,
-                na=False
-            )
+            df["year_text"].str.match(r"^Mar\s+\d{4}$", case=False, na=False)
         ].copy()
 
         if annual.empty:
             annual = df.copy()
 
         annual["year_num"] = pd.to_numeric(
-            annual["year_text"].str.extract(r"(\d{4})")[0],
-            errors="coerce"
+            annual["year_text"].str.extract(r"(\d{4})")[0], errors="coerce"
         )
 
         annual = annual.sort_values("year_num")
@@ -78,10 +81,12 @@ def get_latest_rows(ratios):
 
     return rows
 
+
 def main():
     conn = sqlite3.connect(DB)
 
-    companies = pd.read_sql("""
+    companies = pd.read_sql(
+        """
         SELECT
             c.id AS company_id,
             c.company_name,
@@ -90,12 +95,17 @@ def main():
         LEFT JOIN sectors s
             ON c.id = s.company_id
         ORDER BY c.id
-    """, conn)
+    """,
+        conn,
+    )
 
-    ratios = pd.read_sql("""
+    ratios = pd.read_sql(
+        """
         SELECT *
         FROM financial_ratios
-    """, conn)
+    """,
+        conn,
+    )
 
     conn.close()
 
@@ -138,8 +148,7 @@ def main():
     latest_rows = get_latest_rows(ratios)
 
     latest_map = {
-        ticker: (latest, previous)
-        for ticker, latest, previous in latest_rows
+        ticker: (latest, previous) for ticker, latest, previous in latest_rows
     }
 
     generated = 0
@@ -150,31 +159,13 @@ def main():
         name = str(company["company_name"])
         sector = str(company["sector"]) if pd.notna(company["sector"]) else "N/A"
 
-        latest, previous = latest_map.get(
-            ticker,
-            ({}, None)
-        )
+        latest, previous = latest_map.get(ticker, ({}, None))
 
-        story.append(
-            Paragraph(
-                "N100 FINANCIAL INTELLIGENCE",
-                title
-            )
-        )
+        story.append(Paragraph("N100 FINANCIAL INTELLIGENCE", title))
 
-        story.append(
-            Paragraph(
-                f"<b>{ticker}</b> — {name}",
-                subtitle
-            )
-        )
+        story.append(Paragraph(f"<b>{ticker}</b> — {name}", subtitle))
 
-        story.append(
-            Paragraph(
-                f"Sector: <b>{sector}</b>",
-                styles["Heading3"]
-            )
-        )
+        story.append(Paragraph(f"Sector: <b>{sector}</b>", styles["Heading3"]))
 
         story.append(Spacer(1, 10))
 
@@ -191,13 +182,19 @@ def main():
 
         for label, column in kpis:
             current = latest.get(column) if hasattr(latest, "get") else None
-            prior = previous.get(column) if previous is not None and hasattr(previous, "get") else None
+            prior = (
+                previous.get(column)
+                if previous is not None and hasattr(previous, "get")
+                else None
+            )
 
-            kpi_data.append([
-                label,
-                num(current),
-                arrow(current, prior),
-            ])
+            kpi_data.append(
+                [
+                    label,
+                    num(current),
+                    arrow(current, prior),
+                ]
+            )
 
         table = Table(
             kpi_data,
@@ -205,17 +202,21 @@ def main():
             repeatRows=1,
         )
 
-        table.setStyle(TableStyle([
-            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#17365D")),
-            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-            ("FONTSIZE", (0, 0), (-1, -1), 10),
-            ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-            ("ALIGN", (1, 1), (-1, -1), "CENTER"),
-            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
-            ("TOPPADDING", (0, 0), (-1, -1), 8),
-        ]))
+        table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#17365D")),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("FONTSIZE", (0, 0), (-1, -1), 10),
+                    ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                    ("ALIGN", (1, 1), (-1, -1), "CENTER"),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+                    ("TOPPADDING", (0, 0), (-1, -1), 8),
+                ]
+            )
+        )
 
         story.append(table)
         story.append(Spacer(1, 20))
@@ -223,17 +224,14 @@ def main():
         story.append(
             Paragraph(
                 f"Latest annual period: {latest.get('year', 'N/A') if hasattr(latest, 'get') else 'N/A'}",
-                small
+                small,
             )
         )
 
         story.append(Spacer(1, 10))
 
         story.append(
-            Paragraph(
-                "Trend rule: ? improved, ? declined, ? flat within ±2%.",
-                small
-            )
+            Paragraph("Trend rule: ? improved, ? declined, ? flat within ±2%.", small)
         )
 
         generated += 1
@@ -251,6 +249,7 @@ def main():
     print(f"PDF             : {PDF}")
     print(f"PDF size        : {PDF.stat().st_size} bytes")
     print("=" * 60)
+
 
 if __name__ == "__main__":
     main()

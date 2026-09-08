@@ -1,6 +1,5 @@
 import streamlit as st
 
-
 st.set_page_config(
     page_title="Nifty 100 Analytics",
     page_icon="📊",
@@ -10,9 +9,7 @@ st.set_page_config(
 
 
 st.title("📊 Nifty 100 Financial Intelligence")
-st.caption(
-    "Financial analytics, screening, peer intelligence and valuation"
-)
+st.caption("Financial analytics, screening, peer intelligence and valuation")
 
 
 st.sidebar.title("Navigation")

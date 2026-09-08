@@ -19,9 +19,7 @@ from src.analytics.cagr import (
 def test_normal_cagr():
     result, flag = calculate_cagr(100, 200, 5)
 
-    assert result == pytest.approx(
-        ((200 / 100) ** (1 / 5) - 1) * 100
-    )
+    assert result == pytest.approx(((200 / 100) ** (1 / 5) - 1) * 100)
     assert flag == "NORMAL"
 
 

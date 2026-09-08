@@ -19,7 +19,6 @@ from src.dashboard.utils.db import (
     get_sectors,
 )
 
-
 # --------------------------------------------------
 # Page Configuration
 # --------------------------------------------------
@@ -61,9 +60,7 @@ selected_ticker = st.selectbox(
 # Company Details
 # --------------------------------------------------
 
-company_row = companies[
-    companies["id"].astype(str) == selected_ticker
-]
+company_row = companies[companies["id"].astype(str) == selected_ticker]
 
 if company_row.empty:
     st.error("Company not found.")
@@ -86,10 +83,7 @@ sectors = get_sectors()
 sector_name = "N/A"
 
 if not sectors.empty and "company_id" in sectors.columns:
-    sector_row = sectors[
-        sectors["company_id"].astype(str)
-        == selected_ticker
-    ]
+    sector_row = sectors[sectors["company_id"].astype(str) == selected_ticker]
 
     if not sector_row.empty:
         sector_name = sector_row.iloc[0].get(
@@ -119,15 +113,13 @@ valuation = get_valuation(
 
 st.subheader(company_name)
 
-st.write(
-    f"**Ticker:** {selected_ticker}  |  "
-    f"**Sector:** {sector_name}"
-)
+st.write(f"**Ticker:** {selected_ticker}  |  " f"**Sector:** {sector_name}")
 
 
 # --------------------------------------------------
 # KPI Helpers
 # --------------------------------------------------
+
 
 def value_from_df(df, column):
     if df.empty or column not in df.columns:
@@ -227,11 +219,7 @@ with c3:
 with c4:
     st.metric(
         "Market Cap",
-        (
-            "N/A"
-            if market_cap is None
-            else f"₹{market_cap:,.2f} Cr"
-        ),
+        ("N/A" if market_cap is None else f"₹{market_cap:,.2f} Cr"),
     )
 
 
@@ -312,11 +300,7 @@ else:
         "composite_quality_score",
     ]
 
-    available_columns = [
-        column
-        for column in ratio_columns
-        if column in ratios.columns
-    ]
+    available_columns = [column for column in ratio_columns if column in ratios.columns]
 
     st.dataframe(
         ratios[available_columns],

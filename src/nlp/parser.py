@@ -4,7 +4,6 @@ from pathlib import Path
 
 import pandas as pd
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 INPUT_FILE = PROJECT_ROOT / "data" / "raw" / "analysis.xlsx"
@@ -21,9 +20,7 @@ TARGET_FIELDS = [
 ]
 
 
-PATTERN = re.compile(
-    r"(\d+)\s*Years?:?\s*([-+]?\d+(?:\.\d+)?)%"
-)
+PATTERN = re.compile(r"(\d+)\s*Years?:?\s*([-+]?\d+(?:\.\d+)?)%")
 
 
 def parse_metric(text):
@@ -131,9 +128,7 @@ def cross_validate(parsed_df):
     Divergence > 5% is flagged.
     """
 
-    conn = sqlite3.connect(
-        PROJECT_ROOT / "data" / "nifty100.db"
-    )
+    conn = sqlite3.connect(PROJECT_ROOT / "data" / "nifty100.db")
 
     query = """
         SELECT
@@ -153,15 +148,11 @@ def cross_validate(parsed_df):
     conn.close()
 
     ratio_df["year_number"] = pd.to_numeric(
-        ratio_df["year"]
-        .astype(str)
-        .str.extract(r"(\d{4})")[0],
+        ratio_df["year"].astype(str).str.extract(r"(\d{4})")[0],
         errors="coerce",
     )
 
-    ratio_df = ratio_df.sort_values(
-        ["company_id", "year_number"]
-    )
+    ratio_df = ratio_df.sort_values(["company_id", "year_number"])
 
     metric_map = {
         "compounded_sales_growth": "revenue_cagr_5yr",
@@ -169,9 +160,7 @@ def cross_validate(parsed_df):
         "roe": "return_on_equity_pct",
     }
 
-    parsed_5yr = parsed_df[
-        parsed_df["period_years"] == 5
-    ].copy()
+    parsed_5yr = parsed_df[parsed_df["period_years"] == 5].copy()
 
     validation_rows = []
 
@@ -199,8 +188,7 @@ def cross_validate(parsed_df):
             continue
 
         company_rows = ratio_df[
-            ratio_df["company_id"].astype(str)
-            == str(company_id)
+            ratio_df["company_id"].astype(str) == str(company_id)
         ].copy()
 
         if company_rows.empty:
@@ -218,9 +206,7 @@ def cross_validate(parsed_df):
 
             continue
 
-        available = company_rows[
-            company_rows[ratio_column].notna()
-        ].copy()
+        available = company_rows[company_rows[ratio_column].notna()].copy()
 
         if available.empty:
 
@@ -237,9 +223,7 @@ def cross_validate(parsed_df):
 
             continue
 
-        ratio_value = float(
-            available.iloc[-1][ratio_column]
-        )
+        ratio_value = float(available.iloc[-1][ratio_column])
 
         if ratio_value == 0:
 
@@ -248,17 +232,9 @@ def cross_validate(parsed_df):
 
         else:
 
-            divergence = (
-                abs(analysis_value - ratio_value)
-                / abs(ratio_value)
-                * 100
-            )
+            divergence = abs(analysis_value - ratio_value) / abs(ratio_value) * 100
 
-            flag = (
-                "DIVERGENCE"
-                if divergence > 5
-                else "MATCH"
-            )
+            flag = "DIVERGENCE" if divergence > 5 else "MATCH"
 
         validation_rows.append(
             {
@@ -289,62 +265,41 @@ def cross_validate(parsed_df):
     )
 
     return validation_df
+
+
 if __name__ == "__main__":
 
     parsed_df, failures_df = parse_analysis()
 
-    validation_df = cross_validate(
-        parsed_df
-    )
+    validation_df = cross_validate(parsed_df)
 
     print(f"Parsed rows: {len(parsed_df)}")
     print(f"Parse failures: {len(failures_df)}")
 
-    print(
-        f"Validation rows: {len(validation_df)}"
-    )
+    print(f"Validation rows: {len(validation_df)}")
 
     print(
         "Divergences >5%:",
-        (
-            validation_df["divergence_flag"]
-            == "DIVERGENCE"
-        ).sum(),
+        (validation_df["divergence_flag"] == "DIVERGENCE").sum(),
     )
 
     print(
         "Matches:",
-        (
-            validation_df["divergence_flag"]
-            == "MATCH"
-        ).sum(),
+        (validation_df["divergence_flag"] == "MATCH").sum(),
     )
 
     print(
         "Not comparable:",
-        (
-            validation_df["divergence_flag"]
-            == "NOT_COMPARABLE"
-        ).sum(),
+        (validation_df["divergence_flag"] == "NOT_COMPARABLE").sum(),
     )
 
-    print(
-        f"\nParsed file: {PARSED_FILE}"
-    )
+    print(f"\nParsed file: {PARSED_FILE}")
 
-    print(
-        f"Failure file: {FAILURE_FILE}"
-    )
+    print(f"Failure file: {FAILURE_FILE}")
 
-    print(
-        f"Validation file: {VALIDATION_FILE}"
-    )
+    print(f"Validation file: {VALIDATION_FILE}")
 
     print("\nValidation results:")
 
     if not validation_df.empty:
-        print(
-            validation_df.to_string(
-                index=False
-            )
-        )
+        print(validation_df.to_string(index=False))

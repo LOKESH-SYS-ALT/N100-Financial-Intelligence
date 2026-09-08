@@ -7,10 +7,10 @@ Day 08 + Day 09 ratio functions.
 
 from typing import Optional
 
-
 # ============================================================
 # DAY 08 - PROFITABILITY RATIOS
 # ============================================================
+
 
 def net_profit_margin(
     net_profit: float,
@@ -86,11 +86,7 @@ def return_on_capital_employed(
     ROCE = EBIT /
     (Equity Capital + Reserves + Borrowings) * 100.
     """
-    capital_employed = (
-        equity_capital
-        + reserves
-        + borrowings
-    )
+    capital_employed = equity_capital + reserves + borrowings
 
     if capital_employed <= 0:
         return None
@@ -112,6 +108,7 @@ def return_on_assets(
 # ============================================================
 # DAY 09 - LEVERAGE & EFFICIENCY RATIOS
 # ============================================================
+
 
 def debt_to_equity(
     borrowings: float,
@@ -237,6 +234,7 @@ def asset_turnover(
 # HELPER - ALL DAY 08 PROFITABILITY RATIOS
 # ============================================================
 
+
 def profitability_ratios(
     net_profit: float,
     sales: float,
@@ -336,6 +334,7 @@ def profitability_ratios(
 # HELPER - ALL DAY 09 LEVERAGE & EFFICIENCY RATIOS
 # ============================================================
 
+
 def calculate_leverage_efficiency_ratios(
     borrowings: float,
     equity: float,
@@ -364,27 +363,21 @@ def calculate_leverage_efficiency_ratios(
 
     return {
         "debt_to_equity": de,
-
         "high_leverage_flag": high_leverage_flag(
             de,
             broad_sector,
         ),
-
         "interest_coverage": icr,
-
         "icr_label": icr_label(
             icr,
         ),
-
         "icr_warning_flag": icr_warning_flag(
             icr,
         ),
-
         "net_debt": net_debt(
             borrowings,
             investments,
         ),
-
         "asset_turnover": asset_turnover(
             sales,
             total_assets,

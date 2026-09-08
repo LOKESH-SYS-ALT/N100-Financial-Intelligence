@@ -33,21 +33,14 @@ if companies.empty:
     st.error("No companies found.")
     st.stop()
 
-company_ids = (
-    companies["id"]
-    .dropna()
-    .astype(str)
-    .tolist()
-)
+company_ids = companies["id"].dropna().astype(str).tolist()
 
 selected_ticker = st.selectbox(
     "Select Company",
     company_ids,
 )
 
-company_row = companies[
-    companies["id"].astype(str) == selected_ticker
-]
+company_row = companies[companies["id"].astype(str) == selected_ticker]
 
 if not company_row.empty:
     company_name = company_row.iloc[0].get(
@@ -64,9 +57,7 @@ ratios = get_ratios(selected_ticker)
 pl = get_pl(selected_ticker)
 
 if ratios.empty:
-    st.warning(
-        f"No financial ratio data found for {selected_ticker}."
-    )
+    st.warning(f"No financial ratio data found for {selected_ticker}.")
 else:
 
     ratios = ratios.copy()
@@ -88,9 +79,7 @@ else:
     ]
 
     available_metrics = [
-        metric
-        for metric in metric_options
-        if metric in ratios.columns
+        metric for metric in metric_options if metric in ratios.columns
     ]
 
     if available_metrics:
@@ -103,9 +92,7 @@ else:
 
         if selected_metrics:
 
-            chart_df = ratios[
-                ["year"] + selected_metrics
-            ].copy()
+            chart_df = ratios[["year"] + selected_metrics].copy()
 
             for metric in selected_metrics:
                 chart_df[metric] = pd.to_numeric(
@@ -135,16 +122,12 @@ else:
     ]
 
     available_cashflow = [
-        column
-        for column in cashflow_columns
-        if column in ratios.columns
+        column for column in cashflow_columns if column in ratios.columns
     ]
 
     if available_cashflow:
 
-        cashflow_df = ratios[
-            ["year"] + available_cashflow
-        ].copy()
+        cashflow_df = ratios[["year"] + available_cashflow].copy()
 
         for column in available_cashflow:
             cashflow_df[column] = pd.to_numeric(
@@ -183,11 +166,7 @@ else:
         "composite_quality_score",
     ]
 
-    display_columns = [
-        column
-        for column in display_columns
-        if column in ratios.columns
-    ]
+    display_columns = [column for column in display_columns if column in ratios.columns]
 
     if display_columns:
         st.dataframe(

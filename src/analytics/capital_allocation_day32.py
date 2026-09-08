@@ -1,20 +1,11 @@
 from pathlib import Path
 import pandas as pd
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-INPUT_FILE = (
-    PROJECT_ROOT
-    / "output"
-    / "capital_allocation.csv"
-)
+INPUT_FILE = PROJECT_ROOT / "output" / "capital_allocation.csv"
 
-OUTPUT_FILE = (
-    PROJECT_ROOT
-    / "output"
-    / "pattern_changes.csv"
-)
+OUTPUT_FILE = PROJECT_ROOT / "output" / "pattern_changes.csv"
 
 
 def year_sort_key(value):
@@ -66,40 +57,26 @@ def year_sort_key(value):
 
     return (9998, 99)
 
+
 def build_pattern_changes():
     df = pd.read_csv(INPUT_FILE)
 
     df["year"] = df["year"].astype(str)
 
     # TTM is not an annual period.
-    df = df[
-        df["year"].str.upper() != "TTM"
-    ].copy()
+    df = df[df["year"].str.upper() != "TTM"].copy()
 
     # Chronological ordering.
-    df["_sort_key"] = df["year"].apply(
-        year_sort_key
-    )
+    df["_sort_key"] = df["year"].apply(year_sort_key)
 
-    df = df.sort_values(
-        ["company_id", "_sort_key"]
-    ).copy()
+    df = df.sort_values(["company_id", "_sort_key"]).copy()
 
-    df["previous_pattern"] = (
-        df.groupby("company_id")["pattern_label"]
-        .shift(1)
-    )
+    df["previous_pattern"] = df.groupby("company_id")["pattern_label"].shift(1)
 
-    df["current_pattern"] = (
-        df["pattern_label"]
-    )
+    df["current_pattern"] = df["pattern_label"]
 
-    df["pattern_changed"] = (
-        df["previous_pattern"].notna()
-        & (
-            df["previous_pattern"]
-            != df["current_pattern"]
-        )
+    df["pattern_changed"] = df["previous_pattern"].notna() & (
+        df["previous_pattern"] != df["current_pattern"]
     )
 
     result = df[
@@ -124,42 +101,28 @@ def validate_latest_year(df):
     annual_years = df["year"].unique()
 
     mar_years = [
-        year for year in annual_years
-        if str(year).strip().lower().startswith("mar")
+        year for year in annual_years if str(year).strip().lower().startswith("mar")
     ]
 
     latest_year = max(mar_years, key=year_sort_key)
 
-    latest = df[
-        df["year"] == latest_year
-    ].copy()
+    latest = df[df["year"] == latest_year].copy()
 
     print("=" * 60)
     print("DAY 32 - CAPITAL ALLOCATION")
     print("=" * 60)
 
-    print(
-        f"Latest annual year: {latest_year}"
-    )
+    print(f"Latest annual year: {latest_year}")
 
-    print(
-        f"Companies in latest year: "
-        f"{latest['company_id'].nunique()}"
-    )
+    print(f"Companies in latest year: " f"{latest['company_id'].nunique()}")
 
     print("\nLatest-year pattern distribution:")
 
-    print(
-        latest["current_pattern"]
-        .value_counts()
-        .sort_index()
-    )
+    print(latest["current_pattern"].value_counts().sort_index())
 
     print(
         "\nTotal pattern changes:",
-        int(
-            df["pattern_changed"].sum()
-        ),
+        int(df["pattern_changed"].sum()),
     )
 
     print(

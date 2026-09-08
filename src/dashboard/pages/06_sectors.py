@@ -11,7 +11,6 @@ import streamlit as st
 
 from src.dashboard.utils.db import get_sectors
 
-
 st.set_page_config(
     page_title="Sectors",
     page_icon="🏭",
@@ -20,8 +19,7 @@ st.set_page_config(
 
 st.title("🏭 Sector Analysis")
 st.caption(
-    "Explore Nifty 100 companies by sector, market-cap category "
-    "and index weight."
+    "Explore Nifty 100 companies by sector, market-cap category " "and index weight."
 )
 
 sectors = get_sectors()
@@ -45,17 +43,11 @@ if "index_weight_pct" in sectors.columns:
 
 if "market_cap_category" in sectors.columns:
     sectors["market_cap_category"] = (
-        sectors["market_cap_category"]
-        .fillna("Unknown")
-        .astype(str)
+        sectors["market_cap_category"].fillna("Unknown").astype(str)
     )
 
 if "broad_sector" in sectors.columns:
-    sectors["broad_sector"] = (
-        sectors["broad_sector"]
-        .fillna("Unknown")
-        .astype(str)
-    )
+    sectors["broad_sector"] = sectors["broad_sector"].fillna("Unknown").astype(str)
 
 
 # ---------------------------------------------------------
@@ -64,9 +56,7 @@ if "broad_sector" in sectors.columns:
 
 st.markdown("### 🔎 Filters")
 
-sector_options = sorted(
-    sectors["broad_sector"].dropna().unique().tolist()
-)
+sector_options = sorted(sectors["broad_sector"].dropna().unique().tolist())
 
 selected_sector = st.selectbox(
     "Select Sector",
@@ -76,9 +66,7 @@ selected_sector = st.selectbox(
 filtered = sectors.copy()
 
 if selected_sector != "All Sectors":
-    filtered = filtered[
-        filtered["broad_sector"] == selected_sector
-    ]
+    filtered = filtered[filtered["broad_sector"] == selected_sector]
 
 
 # ---------------------------------------------------------
@@ -117,9 +105,7 @@ with col3:
 
 with col4:
     if "market_cap_category" in filtered.columns:
-        categories = filtered[
-            "market_cap_category"
-        ].nunique()
+        categories = filtered["market_cap_category"].nunique()
         st.metric(
             "Market Cap Categories",
             categories,
@@ -137,11 +123,7 @@ with col4:
 
 st.markdown("### 📈 Companies by Sector")
 
-sector_counts = (
-    filtered["broad_sector"]
-    .value_counts()
-    .sort_values(ascending=False)
-)
+sector_counts = filtered["broad_sector"].value_counts().sort_values(ascending=False)
 
 if not sector_counts.empty:
     st.bar_chart(
@@ -161,8 +143,7 @@ if "index_weight_pct" in filtered.columns:
     st.markdown("### ⚖️ Index Weight by Sector")
 
     sector_weights = (
-        filtered
-        .groupby("broad_sector")["index_weight_pct"]
+        filtered.groupby("broad_sector")["index_weight_pct"]
         .sum()
         .sort_values(ascending=False)
     )
@@ -183,9 +164,7 @@ if "market_cap_category" in filtered.columns:
     st.markdown("### 💰 Market Cap Category")
 
     category_counts = (
-        filtered["market_cap_category"]
-        .value_counts()
-        .sort_values(ascending=False)
+        filtered["market_cap_category"].value_counts().sort_values(ascending=False)
     )
 
     if not category_counts.empty:
@@ -210,11 +189,7 @@ display_columns = [
     "market_cap_category",
 ]
 
-display_columns = [
-    column
-    for column in display_columns
-    if column in filtered.columns
-]
+display_columns = [column for column in display_columns if column in filtered.columns]
 
 if display_columns:
     st.dataframe(
@@ -236,9 +211,7 @@ else:
 
 st.markdown("### 📥 Export")
 
-csv_data = filtered.to_csv(
-    index=False
-).encode("utf-8")
+csv_data = filtered.to_csv(index=False).encode("utf-8")
 
 st.download_button(
     label="Download Sector Data CSV",

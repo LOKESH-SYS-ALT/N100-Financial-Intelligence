@@ -36,7 +36,6 @@ from reportlab.graphics.charts.barcharts import VerticalBarChart
 from reportlab.graphics.charts.linecharts import LineChart
 from reportlab.graphics.charts.lineplots import LinePlot
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DB_PATH = PROJECT_ROOT / "data" / "nifty100.db"
 OUTPUT_DIR = PROJECT_ROOT / "reports" / "tearsheets"
@@ -45,6 +44,7 @@ OUTPUT_DIR = PROJECT_ROOT / "reports" / "tearsheets"
 # -------------------------------------------------------------------
 # Database
 # -------------------------------------------------------------------
+
 
 def get_connection():
     return sqlite3.connect(DB_PATH)
@@ -144,6 +144,7 @@ def load_company_data(company_id: str):
 # Helpers
 # -------------------------------------------------------------------
 
+
 def safe_number(value, decimals=2):
     try:
         if pd.isna(value):
@@ -157,6 +158,8 @@ def find_column(df, candidates):
     for column in candidates:
         if column in df.columns:
             return column
+
+
 def latest_row(df):
     if df.empty:
         return None
@@ -165,9 +168,7 @@ def latest_row(df):
     df["year_text"] = df["year"].astype(str).str.strip()
 
     # Prefer latest annual March row with actual KPI data.
-    march_rows = df[
-        df["year_text"].str.lower().str.startswith("mar")
-    ].copy()
+    march_rows = df[df["year_text"].str.lower().str.startswith("mar")].copy()
 
     if not march_rows.empty:
         march_rows["year_num"] = pd.to_numeric(
@@ -190,9 +191,13 @@ def latest_row(df):
         if available:
             valid = march_rows.dropna(subset=available, how="all")
             if not valid.empty:
-                return valid.iloc[-1].drop(labels=["year_text", "year_num"], errors="ignore")
+                return valid.iloc[-1].drop(
+                    labels=["year_text", "year_num"], errors="ignore"
+                )
 
-        return march_rows.iloc[-1].drop(labels=["year_text", "year_num"], errors="ignore")
+        return march_rows.iloc[-1].drop(
+            labels=["year_text", "year_num"], errors="ignore"
+        )
 
     return df.iloc[-1].drop(labels=["year_text"], errors="ignore")
 
@@ -292,6 +297,7 @@ SIGNAL_STYLE = ParagraphStyle(
 # Header
 # -------------------------------------------------------------------
 
+
 def header_block(company_name, ticker, sector):
     data = [
         [
@@ -362,6 +368,7 @@ def header_block(company_name, ticker, sector):
 # KPI tiles
 # -------------------------------------------------------------------
 
+
 def kpi_tiles(ratios):
     latest = latest_row(ratios)
 
@@ -417,8 +424,7 @@ def kpi_tiles(ratios):
         cell.setStyle(
             TableStyle(
                 [
-                    ("BACKGROUND", (0, 0), (-1, -1),
-                     colors.HexColor("#F4F7FA")),
+                    ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F4F7FA")),
                     ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                     ("LEFTPADDING", (0, 0), (-1, -1), 4),
                     ("RIGHTPADDING", (0, 0), (-1, -1), 4),
@@ -437,8 +443,7 @@ def kpi_tiles(ratios):
     outer.setStyle(
         TableStyle(
             [
-                ("GRID", (0, 0), (-1, -1), 0.4,
-                 colors.HexColor("#B7C9D6")),
+                ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#B7C9D6")),
                 ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
             ]
         )
@@ -507,33 +512,20 @@ def revenue_profit_chart(pnl):
         errors="coerce",
     )
 
-    temp["year_text"] = (
-        temp[year_col]
-        .astype(str)
-        .str.strip()
-    )
+    temp["year_text"] = temp[year_col].astype(str).str.strip()
 
     # Prefer March annual periods.
-    march = temp[
-        temp["year_text"]
-        .str.lower()
-        .str.startswith("mar")
-    ].copy()
+    march = temp[temp["year_text"].str.lower().str.startswith("mar")].copy()
 
     if not march.empty:
         march["year_num"] = pd.to_numeric(
-            march["year_text"]
-            .str.extract(r"(20\d{2}|19\d{2})")[0],
+            march["year_text"].str.extract(r"(20\d{2}|19\d{2})")[0],
             errors="coerce",
         )
 
-        march = (
-            march
-            .sort_values("year_num")
-            .drop_duplicates(
-                subset=["year_num"],
-                keep="last",
-            )
+        march = march.sort_values("year_num").drop_duplicates(
+            subset=["year_num"],
+            keep="last",
         )
 
         temp = march.tail(10).copy()
@@ -550,17 +542,11 @@ def revenue_profit_chart(pnl):
     labels = temp["year_text"].tolist()
 
     revenue_values = [
-        float(value)
-        if pd.notna(value)
-        else 0
-        for value in temp[revenue_col]
+        float(value) if pd.notna(value) else 0 for value in temp[revenue_col]
     ]
 
     profit_values = [
-        float(value)
-        if pd.notna(value)
-        else 0
-        for value in temp[profit_col]
+        float(value) if pd.notna(value) else 0 for value in temp[profit_col]
     ]
 
     # Two separate charts, same 10-year period.
@@ -571,9 +557,7 @@ def revenue_profit_chart(pnl):
     revenue_chart.width = 112 * mm
     revenue_chart.height = 48 * mm
 
-    revenue_chart.data = [
-        revenue_values
-    ]
+    revenue_chart.data = [revenue_values]
 
     revenue_chart.categoryAxis.categoryNames = labels
     revenue_chart.categoryAxis.labels.fontSize = 5
@@ -585,8 +569,6 @@ def revenue_profit_chart(pnl):
 
     revenue_chart.strokeColor = None
 
-    
-
     profit_chart = VerticalBarChart()
 
     profit_chart.x = 0
@@ -594,9 +576,7 @@ def revenue_profit_chart(pnl):
     profit_chart.width = 112 * mm
     profit_chart.height = 48 * mm
 
-    profit_chart.data = [
-        profit_values
-    ]
+    profit_chart.data = [profit_values]
 
     profit_chart.categoryAxis.categoryNames = labels
     profit_chart.categoryAxis.labels.fontSize = 5
@@ -608,7 +588,6 @@ def revenue_profit_chart(pnl):
 
     profit_chart.strokeColor = None
 
-    
     drawing = Drawing(
         250 * mm,
         55 * mm,
@@ -626,7 +605,6 @@ def revenue_profit_chart(pnl):
     return drawing
 
 
-
 def roe_roce_chart(ratios):
     if ratios.empty:
         return Paragraph(
@@ -636,17 +614,9 @@ def roe_roce_chart(ratios):
 
     temp = ratios.copy()
 
-    temp["year_text"] = (
-        temp["year"]
-        .astype(str)
-        .str.strip()
-    )
+    temp["year_text"] = temp["year"].astype(str).str.strip()
 
-    temp = temp[
-        temp["year_text"]
-        .str.lower()
-        .str.startswith("mar")
-    ].copy()
+    temp = temp[temp["year_text"].str.lower().str.startswith("mar")].copy()
 
     if temp.empty:
         return Paragraph(
@@ -655,8 +625,7 @@ def roe_roce_chart(ratios):
         )
 
     temp["year_num"] = pd.to_numeric(
-        temp["year_text"]
-        .str.extract(r"(20\d{2}|19\d{2})")[0],
+        temp["year_text"].str.extract(r"(20\d{2}|19\d{2})")[0],
         errors="coerce",
     )
 
@@ -681,8 +650,7 @@ def roe_roce_chart(ratios):
         )
 
     temp = (
-        temp
-        .sort_values("year_num")
+        temp.sort_values("year_num")
         .drop_duplicates(
             subset=["year_num"],
             keep="last",
@@ -723,13 +691,9 @@ def roe_roce_chart(ratios):
         roce,
     ]
 
-    chart.xValueAxis.valueMin = min(
-        x for x, _ in roe
-    )
+    chart.xValueAxis.valueMin = min(x for x, _ in roe)
 
-    chart.xValueAxis.valueMax = max(
-        x for x, _ in roe
-    )
+    chart.xValueAxis.valueMax = max(x for x, _ in roe)
 
     chart.xValueAxis.labels.fontSize = 5
     chart.yValueAxis.labels.fontSize = 5
@@ -777,11 +741,7 @@ def balance_sheet_table(balance):
         "other_asset",
     ]
 
-    available = [
-        column
-        for column in asset_columns
-        if column in balance.columns
-    ]
+    available = [column for column in asset_columns if column in balance.columns]
 
     if not available:
         return Paragraph(
@@ -797,32 +757,19 @@ def balance_sheet_table(balance):
             errors="coerce",
         )
 
-    temp["year_text"] = (
-        temp[year_col]
-        .astype(str)
-        .str.strip()
-    )
+    temp["year_text"] = temp[year_col].astype(str).str.strip()
 
-    march = temp[
-        temp["year_text"]
-        .str.lower()
-        .str.startswith("mar")
-    ].copy()
+    march = temp[temp["year_text"].str.lower().str.startswith("mar")].copy()
 
     if not march.empty:
         march["year_num"] = pd.to_numeric(
-            march["year_text"]
-            .str.extract(r"(\d{4})")[0],
+            march["year_text"].str.extract(r"(\d{4})")[0],
             errors="coerce",
         )
 
-        march = (
-            march
-            .sort_values("year_num")
-            .drop_duplicates(
-                subset=["year_num"],
-                keep="last",
-            )
+        march = march.sort_values("year_num").drop_duplicates(
+            subset=["year_num"],
+            keep="last",
         )
 
         temp = march.tail(5).copy()
@@ -836,32 +783,19 @@ def balance_sheet_table(balance):
     chart.width = 225 * mm
     chart.height = 36 * mm
 
-    chart.data = [
-        temp[column].fillna(0).tolist()
-        for column in available
-    ]
+    chart.data = [temp[column].fillna(0).tolist() for column in available]
 
-    chart.categoryAxis.categoryNames = (
-        temp["year_text"].tolist()
-    )
+    chart.categoryAxis.categoryNames = temp["year_text"].tolist()
 
     chart.categoryAxis.labels.fontSize = 6
     chart.categoryAxis.labels.angle = 45
     chart.valueAxis.labels.fontSize = 6
 
-    maximum = max(
-        temp[available].sum(axis=1).tolist()
-    )
+    maximum = max(temp[available].sum(axis=1).tolist())
 
     chart.valueAxis.valueMin = 0
-    chart.valueAxis.valueMax = (
-        maximum * 1.15
-        if maximum > 0
-        else 1
-    )
-    chart.valueAxis.valueStep = (
-        chart.valueAxis.valueMax / 5
-    )
+    chart.valueAxis.valueMax = maximum * 1.15 if maximum > 0 else 1
+    chart.valueAxis.valueStep = chart.valueAxis.valueMax / 5
 
     chart.barWidth = 12
     chart.groupSpacing = 8
@@ -879,6 +813,7 @@ def balance_sheet_table(balance):
     )
 
     return drawing
+
 
 def cash_flow_table(cashflow):
     if cashflow.empty:
@@ -906,11 +841,7 @@ def cash_flow_table(cashflow):
             BODY_STYLE,
         )
 
-    available = [
-        column
-        for column in required
-        if column in temp.columns
-    ]
+    available = [column for column in required if column in temp.columns]
 
     if not available:
         return Paragraph(
@@ -935,32 +866,19 @@ def cash_flow_table(cashflow):
             BODY_STYLE,
         )
 
-    temp["year_text"] = (
-        temp[year_col]
-        .astype(str)
-        .str.strip()
-    )
+    temp["year_text"] = temp[year_col].astype(str).str.strip()
 
-    march = temp[
-        temp["year_text"]
-        .str.lower()
-        .str.startswith("mar")
-    ].copy()
+    march = temp[temp["year_text"].str.lower().str.startswith("mar")].copy()
 
     if not march.empty:
         march["year_num"] = pd.to_numeric(
-            march["year_text"]
-            .str.extract(r"(\d{2,4})")[0],
+            march["year_text"].str.extract(r"(\d{2,4})")[0],
             errors="coerce",
         )
 
-        march = (
-            march
-            .sort_values("year_num")
-            .drop_duplicates(
-                subset=["year_num"],
-                keep="last",
-            )
+        march = march.sort_values("year_num").drop_duplicates(
+            subset=["year_num"],
+            keep="last",
         )
 
         temp = march.tail(5).copy()
@@ -996,22 +914,19 @@ def cash_flow_table(cashflow):
     for _, row in temp.iterrows():
         cfo = (
             float(row["operating_activity"])
-            if "operating_activity" in row
-            and pd.notna(row["operating_activity"])
+            if "operating_activity" in row and pd.notna(row["operating_activity"])
             else 0
         )
 
         cfi = (
             float(row["investing_activity"])
-            if "investing_activity" in row
-            and pd.notna(row["investing_activity"])
+            if "investing_activity" in row and pd.notna(row["investing_activity"])
             else 0
         )
 
         cff = (
             float(row["financing_activity"])
-            if "financing_activity" in row
-            and pd.notna(row["financing_activity"])
+            if "financing_activity" in row and pd.notna(row["financing_activity"])
             else 0
         )
 
@@ -1023,10 +938,7 @@ def cash_flow_table(cashflow):
             )
         )
 
-    maximum = max(
-        max(abs(value) for value in row)
-        for row in values
-    )
+    maximum = max(max(abs(value) for value in row) for row in values)
 
     chart_left = 20 * mm
     chart_bottom = 17 * mm
@@ -1064,18 +976,10 @@ def cash_flow_table(cashflow):
     ]
 
     for index, row in enumerate(values):
-        group_x = (
-            chart_left
-            + index * group_width
-        )
+        group_x = chart_left + index * group_width
 
         for component_index, value in enumerate(row):
-            x = (
-                group_x
-                + 4 * mm
-                + component_index
-                * (bar_width + bar_gap)
-            )
+            x = group_x + 4 * mm + component_index * (bar_width + bar_gap)
 
             height = abs(value) * scale
 
@@ -1095,17 +999,13 @@ def cash_flow_table(cashflow):
             drawing.add(rect)
 
             value_text = (
-                f"{value / 1000:.1f}k"
-                if abs(value) >= 1000
-                else f"{value:.0f}"
+                f"{value / 1000:.1f}k" if abs(value) >= 1000 else f"{value:.0f}"
             )
 
             drawing.add(
                 String(
                     x + bar_width / 2,
-                    y + height + 1.2 * mm
-                    if value >= 0
-                    else y - 3 * mm,
+                    y + height + 1.2 * mm if value >= 0 else y - 3 * mm,
                     value_text,
                     fontSize=5,
                     textAnchor="middle",
@@ -1113,9 +1013,7 @@ def cash_flow_table(cashflow):
             )
 
         year_label = String(
-            group_x
-            + 4 * mm
-            + 1.5 * (bar_width + bar_gap),
+            group_x + 4 * mm + 1.5 * (bar_width + bar_gap),
             chart_bottom - 4 * mm,
             str(temp.iloc[index]["year_text"]),
             fontSize=6,
@@ -1127,10 +1025,7 @@ def cash_flow_table(cashflow):
     legend_y = 8 * mm
 
     for index, label in enumerate(labels):
-        legend_x = (
-            85 * mm
-            + index * 28 * mm
-        )
+        legend_x = 85 * mm + index * 28 * mm
 
         drawing.add(
             Rect(
@@ -1152,12 +1047,9 @@ def cash_flow_table(cashflow):
 
     return drawing
 
+
 def pros_cons_table(company_id):
-    file_path = (
-        PROJECT_ROOT
-        / "output"
-        / "pros_cons_generated.csv"
-    )
+    file_path = PROJECT_ROOT / "output" / "pros_cons_generated.csv"
 
     if not file_path.exists():
         return Paragraph(
@@ -1169,8 +1061,7 @@ def pros_cons_table(company_id):
         pros_cons = pd.read_csv(file_path)
 
         pros_cons = pros_cons[
-            pros_cons["company_id"].astype(str)
-            == str(company_id)
+            pros_cons["company_id"].astype(str) == str(company_id)
         ].copy()
 
     except Exception as exc:
@@ -1185,19 +1076,23 @@ def pros_cons_table(company_id):
             BODY_STYLE,
         )
 
-    pros = pros_cons[
-        pros_cons["type"].astype(str).str.lower() == "pro"
-    ].sort_values(
-        "confidence_pct",
-        ascending=False,
-    ).head(6)
+    pros = (
+        pros_cons[pros_cons["type"].astype(str).str.lower() == "pro"]
+        .sort_values(
+            "confidence_pct",
+            ascending=False,
+        )
+        .head(6)
+    )
 
-    cons = pros_cons[
-        pros_cons["type"].astype(str).str.lower() == "con"
-    ].sort_values(
-        "confidence_pct",
-        ascending=False,
-    ).head(6)
+    cons = (
+        pros_cons[pros_cons["type"].astype(str).str.lower() == "con"]
+        .sort_values(
+            "confidence_pct",
+            ascending=False,
+        )
+        .head(6)
+    )
 
     max_rows = max(len(pros), len(cons))
 
@@ -1240,12 +1135,9 @@ def pros_cons_table(company_id):
     table.setStyle(
         TableStyle(
             [
-                ("BACKGROUND", (0, 0), (0, 0),
-                 colors.HexColor("#E2F0D9")),
-                ("BACKGROUND", (1, 0), (1, 0),
-                 colors.HexColor("#FCE4D6")),
-                ("GRID", (0, 0), (-1, -1), 0.3,
-                 colors.HexColor("#B7B7B7")),
+                ("BACKGROUND", (0, 0), (0, 0), colors.HexColor("#E2F0D9")),
+                ("BACKGROUND", (1, 0), (1, 0), colors.HexColor("#FCE4D6")),
+                ("GRID", (0, 0), (-1, -1), 0.3, colors.HexColor("#B7B7B7")),
                 ("VALIGN", (0, 0), (-1, -1), "TOP"),
                 ("LEFTPADDING", (0, 0), (-1, -1), 5),
                 ("RIGHTPADDING", (0, 0), (-1, -1), 5),
@@ -1257,16 +1149,14 @@ def pros_cons_table(company_id):
 
     return table
 
+
 # -------------------------------------------------------------------
 # Capital allocation
 # -------------------------------------------------------------------
 
+
 def capital_allocation_badge(company_id):
-    file_path = (
-        PROJECT_ROOT
-        / "output"
-        / "capital_allocation.csv"
-    )
+    file_path = PROJECT_ROOT / "output" / "capital_allocation.csv"
 
     if not file_path.exists():
         return Paragraph(
@@ -1276,10 +1166,7 @@ def capital_allocation_badge(company_id):
 
     df = pd.read_csv(file_path)
 
-    df = df[
-        df["company_id"].astype(str)
-        == str(company_id)
-    ].copy()
+    df = df[df["company_id"].astype(str) == str(company_id)].copy()
 
     if df.empty:
         return Paragraph(
@@ -1287,10 +1174,7 @@ def capital_allocation_badge(company_id):
             BODY_STYLE,
         )
 
-    df = df[
-        df["year"].astype(str).str.upper()
-        != "TTM"
-    ].copy()
+    df = df[df["year"].astype(str).str.upper() != "TTM"].copy()
 
     if df.empty:
         return Paragraph(
@@ -1298,32 +1182,19 @@ def capital_allocation_badge(company_id):
             BODY_STYLE,
         )
 
-    df["year_text"] = (
-        df["year"]
-        .astype(str)
-        .str.strip()
-    )
+    df["year_text"] = df["year"].astype(str).str.strip()
 
     df["year_num"] = pd.to_numeric(
-        df["year_text"]
-        .str.extract(r"(20\d{2}|19\d{2})")[0],
+        df["year_text"].str.extract(r"(20\d{2}|19\d{2})")[0],
         errors="coerce",
     )
 
-    march = df[
-        df["year_text"]
-        .str.lower()
-        .str.startswith("mar")
-    ].copy()
+    march = df[df["year_text"].str.lower().str.startswith("mar")].copy()
 
     if not march.empty:
-        march = (
-            march
-            .sort_values("year_num")
-            .drop_duplicates(
-                subset=["year_num"],
-                keep="last",
-            )
+        march = march.sort_values("year_num").drop_duplicates(
+            subset=["year_num"],
+            keep="last",
         )
 
         latest = march.iloc[-1]
@@ -1384,6 +1255,7 @@ def capital_allocation_badge(company_id):
 
     return badge
 
+
 # -------------------------------------------------------------------
 # PDF generation
 # -------------------------------------------------------------------
@@ -1419,15 +1291,21 @@ def financial_health_summary(ratios):
             Paragraph("<b>ROE</b>", BODY_STYLE),
             Paragraph(fmt("ROE", latest.get("return_on_equity_pct")), BODY_STYLE),
             Paragraph("<b>ROCE</b>", BODY_STYLE),
-            Paragraph(fmt("ROCE", latest.get("return_on_capital_employed_pct")), BODY_STYLE),
+            Paragraph(
+                fmt("ROCE", latest.get("return_on_capital_employed_pct")), BODY_STYLE
+            ),
             Paragraph("<b>D/E</b>", BODY_STYLE),
             Paragraph(fmt("D/E", latest.get("debt_to_equity")), BODY_STYLE),
         ],
         [
             Paragraph("<b>Net Margin</b>", BODY_STYLE),
-            Paragraph(fmt("Net Margin", latest.get("net_profit_margin_pct")), BODY_STYLE),
+            Paragraph(
+                fmt("Net Margin", latest.get("net_profit_margin_pct")), BODY_STYLE
+            ),
             Paragraph("<b>Op. Margin</b>", BODY_STYLE),
-            Paragraph(fmt("Op. Margin", latest.get("operating_profit_margin_pct")), BODY_STYLE),
+            Paragraph(
+                fmt("Op. Margin", latest.get("operating_profit_margin_pct")), BODY_STYLE
+            ),
             Paragraph("<b>FCF</b>", BODY_STYLE),
             Paragraph(fmt("FCF", latest.get("free_cash_flow_cr")), BODY_STYLE),
         ],
@@ -1447,28 +1325,30 @@ def financial_health_summary(ratios):
     )
 
     table.setStyle(
-        TableStyle([
-            ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#EAF0F6")),
-            ("BACKGROUND", (2, 0), (2, -1), colors.HexColor("#EAF0F6")),
-            ("BACKGROUND", (4, 0), (4, -1), colors.HexColor("#EAF0F6")),
-            ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#B8C4D0")),
-            ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#D5DCE3")),
-            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-            ("LEFTPADDING", (0, 0), (-1, -1), 3),
-            ("RIGHTPADDING", (0, 0), (-1, -1), 3),
-        ])
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#EAF0F6")),
+                ("BACKGROUND", (2, 0), (2, -1), colors.HexColor("#EAF0F6")),
+                ("BACKGROUND", (4, 0), (4, -1), colors.HexColor("#EAF0F6")),
+                ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#B8C4D0")),
+                ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#D5DCE3")),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 3),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 3),
+            ]
+        )
     )
 
     return table
+
+
 def build_tearsheet(company_id: str):
     data = load_company_data(company_id)
 
     company = data["company"]
 
     if company.empty:
-        raise ValueError(
-            f"Company not found: {company_id}"
-        )
+        raise ValueError(f"Company not found: {company_id}")
 
     company_name = get_company_name(data)
     sector = get_sector(data)
@@ -1478,10 +1358,7 @@ def build_tearsheet(company_id: str):
         exist_ok=True,
     )
 
-    output_file = (
-        OUTPUT_DIR
-        / f"{company_id}_tearsheet.pdf"
-    )
+    output_file = OUTPUT_DIR / f"{company_id}_tearsheet.pdf"
 
     doc = SimpleDocTemplate(
         str(output_file),
@@ -1517,9 +1394,7 @@ def build_tearsheet(company_id: str):
         )
     )
 
-    story.append(
-        kpi_tiles(data["ratios"])
-    )
+    story.append(kpi_tiles(data["ratios"]))
 
     story.append(Spacer(1, 5))
 
@@ -1530,19 +1405,11 @@ def build_tearsheet(company_id: str):
         )
     )
 
-    story.append(
-        revenue_profit_chart(
-            data["pnl"]
-        )
-    )
+    story.append(revenue_profit_chart(data["pnl"]))
 
     story.append(Spacer(1, 20))
 
-    story.append(
-        roe_roce_chart(
-            data["ratios"]
-        )
-    )
+    story.append(roe_roce_chart(data["ratios"]))
 
     story.append(PageBreak())
 
@@ -1567,11 +1434,7 @@ def build_tearsheet(company_id: str):
         )
     )
 
-    story.append(
-        balance_sheet_table(
-            data["balance"]
-        )
-    )
+    story.append(balance_sheet_table(data["balance"]))
 
     story.append(Spacer(1, 5))
 
@@ -1582,11 +1445,7 @@ def build_tearsheet(company_id: str):
         )
     )
 
-    story.append(
-        cash_flow_table(
-            data["cashflow"]
-        )
-    )
+    story.append(cash_flow_table(data["cashflow"]))
 
     story.append(Spacer(1, 5))
 
@@ -1597,9 +1456,7 @@ def build_tearsheet(company_id: str):
         )
     )
 
-    story.append(
-        pros_cons_table(company_id)
-    )
+    story.append(pros_cons_table(company_id))
 
     story.append(Spacer(1, 5))
 
@@ -1610,11 +1467,7 @@ def build_tearsheet(company_id: str):
         )
     )
 
-    story.append(
-    capital_allocation_badge(
-        company_id
-    )
-)
+    story.append(capital_allocation_badge(company_id))
 
     story.append(Spacer(1, 3))
 
@@ -1625,11 +1478,7 @@ def build_tearsheet(company_id: str):
         )
     )
 
-    story.append(
-        financial_health_summary(
-            data["ratios"]
-        )
-    )
+    story.append(financial_health_summary(data["ratios"]))
 
     doc.build(story)
 
@@ -1652,16 +1501,3 @@ if __name__ == "__main__":
     print(f"PDF: {output}")
     print(f"Size: {output.stat().st_size / 1024:.1f} KB")
     print("=" * 60)
-
-
-
-
-
-
-
-
-
-
-
-
-

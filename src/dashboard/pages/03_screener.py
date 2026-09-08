@@ -14,6 +14,7 @@ from src.screener.engine import (
     run_preset,
     run_screener,
 )
+
 config = load_config()
 PRESETS = config.get("presets", {})
 
@@ -74,18 +75,12 @@ if mode == "Preset Screener":
     )
 
     preset_descriptions = {
-        "quality_compounder":
-            "High-quality companies with strong profitability and growth.",
-        "value_pick":
-            "Companies selected using valuation-oriented filters.",
-        "growth_accelerator":
-            "Companies showing strong growth characteristics.",
-        "dividend_champion":
-            "Companies with attractive dividend characteristics.",
-        "debt_free_blue_chip":
-            "High-quality companies with very low or zero leverage.",
-        "turnaround_watch":
-            "Companies showing potential turnaround characteristics.",
+        "quality_compounder": "High-quality companies with strong profitability and growth.",
+        "value_pick": "Companies selected using valuation-oriented filters.",
+        "growth_accelerator": "Companies showing strong growth characteristics.",
+        "dividend_champion": "Companies with attractive dividend characteristics.",
+        "debt_free_blue_chip": "High-quality companies with very low or zero leverage.",
+        "turnaround_watch": "Companies showing potential turnaround characteristics.",
     }
 
     description = preset_descriptions.get(
@@ -102,9 +97,7 @@ if mode == "Preset Screener":
     try:
         results = run_preset(selected_preset)
     except Exception as error:
-        st.error(
-            f"Unable to run preset '{selected_preset}': {error}"
-        )
+        st.error(f"Unable to run preset '{selected_preset}': {error}")
         st.stop()
 
     if results is None:
@@ -144,9 +137,7 @@ if mode == "Preset Screener":
     ]
 
     display_columns = [
-        column
-        for column in preferred_columns
-        if column in results.columns
+        column for column in preferred_columns if column in results.columns
     ]
 
     if display_columns:
@@ -168,9 +159,7 @@ if mode == "Preset Screener":
 
     st.markdown("### 📥 Export")
 
-    csv_data = results.to_csv(
-        index=False
-    ).encode("utf-8")
+    csv_data = results.to_csv(index=False).encode("utf-8")
 
     st.download_button(
         label="Download Results as CSV",
@@ -376,24 +365,16 @@ else:
             filters["debt_to_equity_max"] = debt_to_equity_max
 
         if interest_coverage_min > 0:
-            filters["interest_coverage_min"] = (
-                interest_coverage_min
-            )
+            filters["interest_coverage_min"] = interest_coverage_min
 
         if revenue_cagr_min > 0:
-            filters["revenue_cagr_5yr_min"] = (
-                revenue_cagr_min
-            )
+            filters["revenue_cagr_5yr_min"] = revenue_cagr_min
 
         if pat_cagr_min > 0:
-            filters["pat_cagr_5yr_min"] = (
-                pat_cagr_min
-            )
+            filters["pat_cagr_5yr_min"] = pat_cagr_min
 
         if eps_cagr_min > 0:
-            filters["eps_cagr_5yr_min"] = (
-                eps_cagr_min
-            )
+            filters["eps_cagr_5yr_min"] = eps_cagr_min
 
         if fcf_min > 0:
             filters["fcf_min"] = fcf_min
@@ -408,16 +389,12 @@ else:
             filters["pb_max"] = pb_max
 
         if dividend_yield_min > 0:
-            filters["dividend_yield_min"] = (
-                dividend_yield_min
-            )
+            filters["dividend_yield_min"] = dividend_yield_min
 
         try:
             results = run_screener(filters)
         except Exception as error:
-            st.error(
-                f"Custom screener failed: {error}"
-            )
+            st.error(f"Custom screener failed: {error}")
             st.stop()
 
         if results is None:
@@ -426,9 +403,7 @@ else:
 
         results = results.copy()
 
-        st.success(
-            f"{len(results)} companies matched your filters."
-        )
+        st.success(f"{len(results)} companies matched your filters.")
 
         preferred_columns = [
             "company_id",
@@ -452,9 +427,7 @@ else:
         ]
 
         display_columns = [
-            column
-            for column in preferred_columns
-            if column in results.columns
+            column for column in preferred_columns if column in results.columns
         ]
 
         if display_columns:
@@ -474,9 +447,7 @@ else:
         # CSV Export
         # ------------------------------------------
 
-        csv_data = results.to_csv(
-            index=False
-        ).encode("utf-8")
+        csv_data = results.to_csv(index=False).encode("utf-8")
 
         st.download_button(
             label="📥 Download Custom Results CSV",

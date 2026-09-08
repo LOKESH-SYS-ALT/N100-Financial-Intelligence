@@ -2,7 +2,6 @@ from pathlib import Path
 
 import pandas as pd
 
-
 # ============================================================
 # PROJECT PATHS
 # ============================================================
@@ -62,6 +61,7 @@ UNIQUE_COMPANY_YEAR_FILES = {
 # LOAD SINGLE EXCEL FILE
 # ============================================================
 
+
 def load_excel(filename):
     """
     Load one Excel dataset from data/raw/.
@@ -84,9 +84,7 @@ def load_excel(filename):
     # --------------------------------------------------------
 
     if not file_path.exists():
-        raise FileNotFoundError(
-            f"Dataset not found: {file_path}"
-        )
+        raise FileNotFoundError(f"Dataset not found: {file_path}")
 
     # --------------------------------------------------------
     # Select correct header row
@@ -101,40 +99,25 @@ def load_excel(filename):
     # Read Excel file
     # --------------------------------------------------------
 
-    df = pd.read_excel(
-        file_path,
-        header=header_row
-    )
+    df = pd.read_excel(file_path, header=header_row)
 
     # --------------------------------------------------------
     # Clean column names
     # --------------------------------------------------------
 
-    df.columns = (
-        df.columns
-        .astype(str)
-        .str.strip()
-    )
+    df.columns = df.columns.astype(str).str.strip()
 
     # --------------------------------------------------------
     # Remove completely empty rows
     # --------------------------------------------------------
 
-    df = (
-        df
-        .dropna(how="all")
-        .reset_index(drop=True)
-    )
+    df = df.dropna(how="all").reset_index(drop=True)
 
     # --------------------------------------------------------
     # Remove exact duplicate rows
     # --------------------------------------------------------
 
-    df = (
-        df
-        .drop_duplicates()
-        .reset_index(drop=True)
-    )
+    df = df.drop_duplicates().reset_index(drop=True)
 
     # --------------------------------------------------------
     # Enforce unique company/year business key
@@ -146,14 +129,9 @@ def load_excel(filename):
         and filename in UNIQUE_COMPANY_YEAR_FILES
     ):
 
-        df = (
-            df
-            .drop_duplicates(
-                subset=["company_id", "year"],
-                keep="first"
-            )
-            .reset_index(drop=True)
-        )
+        df = df.drop_duplicates(
+            subset=["company_id", "year"], keep="first"
+        ).reset_index(drop=True)
 
     return df
 
@@ -161,6 +139,7 @@ def load_excel(filename):
 # ============================================================
 # LOAD ALL 12 DATASETS
 # ============================================================
+
 
 def load_all_datasets():
     """
@@ -183,6 +162,7 @@ def load_all_datasets():
 # ============================================================
 # DISPLAY DATASET SUMMARY
 # ============================================================
+
 
 def print_dataset_summary(data):
     """
