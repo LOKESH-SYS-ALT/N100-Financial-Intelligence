@@ -1,3 +1,4 @@
+﻿from contextlib import asynccontextmanager
 from pathlib import Path
 import logging
 import sqlite3
@@ -5,6 +6,7 @@ import time
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from src.api.routers import health as health_router
 from src.api.routers import companies as companies_router
 from src.api.routers import financials as financials_router
@@ -14,21 +16,11 @@ from src.api.routers import peers as peers_router
 from src.api.routers import market as market_router
 from src.api.routers import reports as reports_router
 
-# ============================================================
-# PATHS
-# ============================================================
-
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DB_PATH = PROJECT_ROOT / "data" / "nifty100.db"
 
 VERSION = "1.0.0"
-
 START_TIME = time.time()
-
-
-# ============================================================
-# LOGGING
-# ============================================================
 
 logging.basicConfig(
     level=logging.INFO,
@@ -36,46 +28,6 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger("n100-api")
-
-
-# ============================================================
-# APP
-# ============================================================
-
-app = FastAPI(
-    title="N100 Financial Intelligence API",
-    description=(
-        "REST API for N100 Financial Intelligence Platform. "
-        "Provides company financials, screening, peer analysis, "
-        "sector intelligence, market data and reports."
-    ),
-    version=VERSION,
-)
-
-app.include_router(health_router.router)
-app.include_router(companies_router.router)
-app.include_router(financials_router.router)
-app.include_router(screener_router.router)
-app.include_router(sectors_router.router)
-app.include_router(peers_router.router)
-app.include_router(market_router.router)
-app.include_router(reports_router.router)
-# ============================================================
-# CORS
-# ============================================================
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-# ============================================================
-# DATABASE
-# ============================================================
 
 
 def get_db_connection():
@@ -114,14 +66,14 @@ def get_db_row_counts():
         counts = {}
 
         for table in tables:
-
             try:
-                count = conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+                count = conn.execute(
+                    f"SELECT COUNT(*) FROM {table}"
+                ).fetchone()[0]
 
                 counts[table] = count
 
             except sqlite3.Error:
-
                 counts[table] = None
 
         return counts
@@ -130,9 +82,45 @@ def get_db_row_counts():
         conn.close()
 
 
-# ============================================================
-# ROOT
-# ============================================================
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage API startup and shutdown lifecycle."""
+
+    logger.info("N100 Financial Intelligence API started")
+    logger.info("Database: %s", DB_PATH)
+
+    yield
+
+    logger.info("N100 Financial Intelligence API stopped")
+
+
+app = FastAPI(
+    title="N100 Financial Intelligence API",
+    description=(
+        "REST API for N100 Financial Intelligence Platform. "
+        "Provides company financials, screening, peer analysis, "
+        "sector intelligence, market data and reports."
+    ),
+    version=VERSION,
+    lifespan=lifespan,
+)
+
+app.include_router(health_router.router)
+app.include_router(companies_router.router)
+app.include_router(financials_router.router)
+app.include_router(screener_router.router)
+app.include_router(sectors_router.router)
+app.include_router(peers_router.router)
+app.include_router(market_router.router)
+app.include_router(reports_router.router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get(
@@ -149,27 +137,3 @@ def root():
         "docs": "/docs",
         "health": "/api/v1/health",
     }
-
-
-# ============================================================
-# STARTUP / SHUTDOWN
-# ============================================================
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Log API startup."""
-
-    logger.info("N100 Financial Intelligence API started")
-
-    logger.info(
-        "Database: %s",
-        DB_PATH,
-    )
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Log API shutdown."""
-
-    logger.info("N100 Financial Intelligence API stopped")
