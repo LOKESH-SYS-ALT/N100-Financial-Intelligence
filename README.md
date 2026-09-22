@@ -92,7 +92,545 @@ N100-Financial-Intelligence/
 ├── 📄 README.md
 └── 📄 .gitignore
 ⚙️ Installation & Setup
+🏗️ System Architecture
+                         ┌─────────────────────┐
+                         │   Raw Excel Data    │
+                         │    12 Datasets      │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │   ETL / Data Layer  │
+                         │                     │
+                         │ Loader              │
+                         │ Normalizer          │
+                         │ Validator           │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │   SQLite Database   │
+                         │    nifty100.db      │
+                         └──────────┬──────────┘
+                                    │
+                  ┌─────────────────┼─────────────────┐
+                  │                 │                 │
+                  ▼                 ▼                 ▼
+          ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+          │  Analytics   │  │   Screener   │  │ Peer Engine  │
+          │              │  │              │  │              │
+          │ KPI / CAGR   │  │ Filters      │  │ Benchmarking │
+          │ Ratios       │  │ Conditions   │  │ Comparisons  │
+          │ Valuation    │  │              │  │              │
+          └──────┬───────┘  └──────┬───────┘  └──────┬───────┘
+                 │                 │                 │
+                 └─────────────────┼─────────────────┘
+                                   │
+                    ┌──────────────┴──────────────┐
+                    │                             │
+                    ▼                             ▼
+             ┌──────────────┐              ┌──────────────┐
+             │  FastAPI     │              │  Streamlit   │
+             │  REST API    │              │  Dashboard   │
+             └──────┬───────┘              └──────┬───────┘
+                    │                             │
+                    └──────────────┬──────────────┘
+                                   │
+                                   ▼
+                         ┌─────────────────────┐
+                         │ Automated Reports   │
+                         │ Tearsheets / Sector │
+                         │ Portfolio Analysis  │
+                         └─────────────────────┘
+📌 Key Metrics
+Metric	Project Value
+🏢 Companies Analyzed	92
+📂 Financial Datasets	12
+📊 Dashboard Screens	8
+🧠 ML Clusters	5
+🧪 Automated Tests	154 passing
+📄 Company Tearsheets	92
+🏭 Sector Reports	10
+⚡ API	FastAPI
+🗄️ Database	SQLite
+🚀 Release	v1.0
+✨ Core Capabilities
+🔄 Data Engineering
+Multi-source Excel ingestion
+Data normalization
+Financial-year normalization
+Stock ticker normalization
+Schema validation
+Data-quality rules
+SQLite database loading
+📈 Financial Analytics
+Revenue growth
+Profit growth
+EPS
+ROE
+ROCE
+Operating margins
+Net margins
+Debt-to-equity
+Interest coverage
+Free cash flow
+Capital expenditure
+Dividend payout
+Valuation metrics
+🔎 Company Screening
 
+Configurable screening engine supporting financial criteria such as:
+
+Profitability
+Growth
+Leverage
+Valuation
+Cash-flow characteristics
+Return metrics
+👥 Peer Intelligence
+Peer-group comparison
+Company benchmarking
+Relative financial metrics
+Sector-level comparison
+❤️ Financial Health
+
+Company-level financial health analysis combining multiple financial indicators into a structured health assessment.
+
+💰 Cash Flow Intelligence
+Operating cash flow analysis
+Free cash flow analysis
+Capital expenditure analysis
+Cash conversion indicators
+Financial distress indicators
+🏦 Capital Allocation Intelligence
+
+Analyzes how companies deploy capital across areas such as:
+
+Capital expenditure
+Dividends
+Debt
+Cash generation
+Investment activity
+🧠 NLP Intelligence
+
+Processes company pros and cons information and generates structured analytical outputs for easier interpretation.
+
+🔬 Machine Learning
+
+Uses KMeans clustering to identify groups of companies with similar financial characteristics.
+
+📊 Interactive Analytics
+
+Streamlit-based dashboard with multiple analytical screens.
+
+⚡ API Layer
+
+FastAPI REST endpoints provide programmatic access to the underlying financial intelligence.
+
+📄 Automated Reporting
+
+Generates:
+
+Company tearsheets
+Sector reports
+Portfolio summary
+Analyst guide
+Supporting analytical outputs
+Data Engineering & ETL
+
+The ETL layer is responsible for converting raw financial datasets into a validated analytical database.
+
+ETL Pipeline
+Excel Files
+    ↓
+Load
+    ↓
+Normalize
+    ↓
+Validate
+    ↓
+Transform
+    ↓
+SQLite
+    ↓
+Analytics Ready
+Main ETL Components
+Component	Responsibility
+loader.py	Dataset ingestion and database loading
+normalizer.py	Year and ticker normalization
+validator.py	Data-quality and schema validation
+database.py	SQLite database operations
+Normalization
+
+The pipeline handles:
+
+Financial-year formats
+Ticker formatting
+Whitespace normalization
+Consistent field representation
+
+Example:
+
+FY2024
+2024
+2024-25
+
+are normalized into a consistent analytical representation.
+
+📊 Financial Intelligence
+
+The analytics layer calculates and organizes financial indicators across multiple dimensions.
+
+Profitability
+
+Examples:
+
+ROE
+ROCE
+Operating Margin
+Net Margin
+Profit Growth
+Growth
+
+Examples:
+
+Sales Growth
+Profit Growth
+Stock Price CAGR
+EPS Growth
+Leverage
+
+Examples:
+
+Debt-to-Equity
+Interest Coverage
+Total Debt
+Borrowing trends
+Cash Flow
+
+Examples:
+
+Operating Cash Flow
+Free Cash Flow
+Capital Expenditure
+Cash conversion indicators
+Valuation
+
+Examples:
+
+P/E
+P/B
+EV
+EV/EBITDA
+Dividend Yield
+🔎 Company Screener
+
+The screening engine allows companies to be filtered using configurable financial criteria.
+
+Example screening workflow:
+
+Financial Dataset
+      ↓
+Select Metrics
+      ↓
+Apply Conditions
+      ↓
+Filter Companies
+      ↓
+Rank / Compare Results
+
+The screener can combine multiple financial dimensions such as:
+
+Profitability
+Growth
+Leverage
+Valuation
+Returns
+Cash flow
+
+Configuration is maintained separately from core logic.
+
+config/screener_config.yaml
+
+This makes the screening framework easier to modify and extend.
+
+👥 Peer Intelligence
+
+Peer analysis compares companies against their relevant peer groups.
+
+The workflow helps identify:
+
+Relative profitability
+Relative growth
+Relative leverage
+Valuation differences
+Financial performance patterns
+Company
+   ↓
+Peer Group
+   ↓
+Metric Comparison
+   ↓
+Relative Position
+   ↓
+Peer Intelligence
+❤️ Financial Health Analysis
+
+The platform evaluates company financial health using multiple financial indicators rather than relying on a single metric.
+
+The analysis considers dimensions such as:
+
+Profitability
+Growth
+Leverage
+Cash generation
+Returns
+Financial stability
+
+The result is a structured company-level financial health view that can be consumed through the dashboard, API, and reports.
+
+💰 Cash Flow Intelligence
+
+Cash flow analysis focuses on understanding the quality and sustainability of company cash generation.
+
+Key areas include:
+
+Operating cash flow
+Investing cash flow
+Financing cash flow
+Free cash flow
+Capital expenditure
+Cash-flow trends
+Distress indicators
+
+This allows financial performance to be analyzed beyond accounting profit alone.
+
+🏦 Capital Allocation Intelligence
+
+Capital allocation analysis studies how companies deploy generated capital.
+
+The platform evaluates patterns involving:
+
+Cash Generation
+      │
+      ├── Capital Expenditure
+      ├── Dividends
+      ├── Debt
+      └── Investments
+
+This provides an additional layer of financial interpretation beyond traditional KPI analysis.
+
+🔬 Machine Learning & Clustering
+
+The platform uses KMeans clustering to identify groups of companies with similar financial characteristics.
+
+Current Result
+92 Companies
+      ↓
+Feature Preparation
+      ↓
+KMeans Clustering
+      ↓
+5 Financial Clusters
+      ↓
+Cluster Profiles
+
+The clustering workflow helps identify financial archetypes based on selected company characteristics.
+
+Supporting outputs include:
+
+Cluster labels
+Cluster profiles
+Elbow analysis
+Financial feature comparisons
+
+The clustering results are used as an analytical segmentation layer rather than as a standalone prediction system.
+
+🧠 NLP Intelligence
+
+The NLP module processes qualitative company information such as:
+
+Pros
+Cons
+Business observations
+
+The platform converts these inputs into structured outputs that can be consumed alongside quantitative financial metrics.
+
+This creates a combined analytical view:
+
+Quantitative Financial Data
+              +
+Qualitative Company Information
+              ↓
+      Financial Intelligence
+📊 Interactive Dashboard
+
+The Streamlit dashboard provides an interactive interface for exploring the financial intelligence platform.
+
+Dashboard Screens
+1. 🏠 Home
+
+High-level project and market overview.
+
+2. 🏢 Company Profile
+
+Company-level financial information and KPIs.
+
+3. 🔎 Screener
+
+Configurable financial screening.
+
+4. 👥 Peers
+
+Peer-group comparison and benchmarking.
+
+5. 📈 Trends
+
+Financial and market trend analysis.
+
+6. 🏭 Sectors
+
+Sector-level financial analysis.
+
+7. 💰 Capital
+
+Capital allocation intelligence.
+
+8. 📄 Reports
+
+Access to generated analytical reports.
+
+⚡ REST API
+
+The project exposes financial intelligence through a FastAPI REST API.
+
+The API architecture is organized using modular routers.
+
+src/api/
+│
+├── main.py
+├── dependencies.py
+│
+└── routers/
+    ├── companies.py
+    ├── financials.py
+    ├── health.py
+    ├── market.py
+    ├── peers.py
+    ├── reports.py
+    ├── screener.py
+    └── sectors.py
+API Categories
+Health
+Companies
+Financials
+Market
+Peers
+Reports
+Screener
+Sectors
+Swagger Documentation
+
+When the API is running:
+
+http://127.0.0.1:8000/docs
+
+FastAPI automatically provides interactive API documentation through Swagger UI.
+
+📄 Automated Reporting
+
+The reporting layer automates generation of financial intelligence outputs.
+
+Company Tearsheets
+
+Generated for:
+
+92 Companies
+
+Each tearsheet provides a structured company-level analytical view.
+
+Sector Reports
+
+Generated for:
+
+10 Sectors
+
+Sector reports provide aggregated and comparative sector-level intelligence.
+
+Portfolio Summary
+
+A portfolio-level analytical summary is also generated.
+
+Supporting Reports
+
+The project includes:
+
+Analyst guide
+Acceptance checklist
+Portfolio summary
+Sector reports
+Company tearsheets
+Analytical outputs
+Validation outputs
+🔍 Data Quality & Validation
+
+Data quality is treated as a core part of the platform rather than an afterthought.
+
+The validation workflow checks for issues such as:
+
+Missing required fields
+Schema mismatches
+Invalid financial years
+Invalid ticker values
+Duplicate records
+Data consistency problems
+Critical data-quality failures
+Raw Data
+   ↓
+Schema Validation
+   ↓
+Normalization
+   ↓
+Data Quality Rules
+   ↓
+Critical Failure Detection
+   ↓
+Validated Dataset
+
+This ensures downstream analytics operate on structured and validated data.
+
+🧪 Testing
+
+The project uses Pytest for automated testing across multiple layers.
+
+Test Areas
+tests/
+├── api/
+├── etl/
+├── kpi/
+└── screener/
+
+Testing includes:
+
+ETL loading
+Data normalization
+Data validation
+CAGR calculations
+Cash-flow KPIs
+Leverage analysis
+Financial ratios
+Screener engine
+API endpoints
+Integration behaviour
+Latest Verification
+154 passed
+0 warnings
+
+Additional verification:
+
+python -m compileall -q src
+
+completed successfully.
 Follow these steps to run the project locally.
 
 1️⃣ Clone the Repository
