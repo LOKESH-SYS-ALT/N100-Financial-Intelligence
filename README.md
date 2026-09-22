@@ -95,8 +95,6 @@ N100-Financial-Intelligence/
 
 
 
-
-
 **🏗️ System Architecture**
                          ┌─────────────────────┐
                          │   Raw Excel Data    │
@@ -147,6 +145,9 @@ N100-Financial-Intelligence/
                          │ Tearsheets / Sector │
                          │ Portfolio Analysis  │
                          └─────────────────────┘
+
+
+
 📌 Key Metrics
 Metric	Project Value
 🏢 Companies Analyzed	92
@@ -159,6 +160,8 @@ Metric	Project Value
 ⚡ API	FastAPI
 🗄️ Database	SQLite
 🚀 Release	v1.0
+
+
 ✨ Core Capabilities
 🔄 Data Engineering
 Multi-source Excel ingestion
@@ -168,6 +171,7 @@ Stock ticker normalization
 Schema validation
 Data-quality rules
 SQLite database loading
+
 📈 Financial Analytics
 Revenue growth
 Profit growth
@@ -182,6 +186,8 @@ Free cash flow
 Capital expenditure
 Dividend payout
 Valuation metrics
+
+
 🔎 Company Screening
 
 Configurable screening engine supporting financial criteria such as:
@@ -192,14 +198,19 @@ Leverage
 Valuation
 Cash-flow characteristics
 Return metrics
+
+
 👥 Peer Intelligence
 Peer-group comparison
 Company benchmarking
 Relative financial metrics
 Sector-level comparison
+
+
 ❤️ Financial Health
 
 Company-level financial health analysis combining multiple financial indicators into a structured health assessment.
+
 
 💰 Cash Flow Intelligence
 Operating cash flow analysis
@@ -207,6 +218,8 @@ Free cash flow analysis
 Capital expenditure analysis
 Cash conversion indicators
 Financial distress indicators
+
+
 🏦 Capital Allocation Intelligence
 
 Analyzes how companies deploy capital across areas such as:
@@ -216,6 +229,8 @@ Dividends
 Debt
 Cash generation
 Investment activity
+
+
 🧠 NLP Intelligence
 
 Processes company pros and cons information and generates structured analytical outputs for easier interpretation.
@@ -242,6 +257,8 @@ Portfolio summary
 Analyst guide
 Supporting analytical outputs
 Data Engineering & ETL
+
+
 
 The ETL layer is responsible for converting raw financial datasets into a validated analytical database.
 
@@ -281,6 +298,8 @@ FY2024
 2024-25
 
 are normalized into a consistent analytical representation.
+
+
 
 📊 Financial Intelligence
 
@@ -328,6 +347,8 @@ P/B
 EV
 EV/EBITDA
 Dividend Yield
+
+
 🔎 Company Screener
 
 The screening engine allows companies to be filtered using configurable financial criteria.
@@ -359,6 +380,8 @@ config/screener_config.yaml
 
 This makes the screening framework easier to modify and extend.
 
+
+
 👥 Peer Intelligence
 
 Peer analysis compares companies against their relevant peer groups.
@@ -379,6 +402,9 @@ Metric Comparison
 Relative Position
    ↓
 Peer Intelligence
+
+
+
 ❤️ Financial Health Analysis
 
 The platform evaluates company financial health using multiple financial indicators rather than relying on a single metric.
@@ -393,6 +419,9 @@ Returns
 Financial stability
 
 The result is a structured company-level financial health view that can be consumed through the dashboard, API, and reports.
+
+
+
 
 💰 Cash Flow Intelligence
 
@@ -409,6 +438,8 @@ Cash-flow trends
 Distress indicators
 
 This allows financial performance to be analyzed beyond accounting profit alone.
+
+
 
 🏦 Capital Allocation Intelligence
 
@@ -451,6 +482,9 @@ Financial feature comparisons
 
 The clustering results are used as an analytical segmentation layer rather than as a standalone prediction system.
 
+
+
+
 🧠 NLP Intelligence
 
 The NLP module processes qualitative company information such as:
@@ -468,6 +502,10 @@ Quantitative Financial Data
 Qualitative Company Information
               ↓
       Financial Intelligence
+
+
+
+
 📊 Interactive Dashboard
 
 The Streamlit dashboard provides an interactive interface for exploring the financial intelligence platform.
@@ -577,6 +615,8 @@ Sector reports
 Company tearsheets
 Analytical outputs
 Validation outputs
+
+
 🔍 Data Quality & Validation
 
 Data quality is treated as a core part of the platform rather than an afterthought.
@@ -603,6 +643,9 @@ Critical Failure Detection
 Validated Dataset
 
 This ensures downstream analytics operate on structured and validated data.
+
+
+
 
 🧪 Testing
 
@@ -641,6 +684,8 @@ Follow these steps to run the project locally.
 1️⃣ Clone the Repository
 git clone https://github.com/LOKESH-SYS-ALT/N100-Financial-Intelligence.git
 cd N100-Financial-Intelligence
+
+
 2️⃣ Create Virtual Environment
 python -m venv .venv
 🪟 Windows PowerShell
@@ -653,6 +698,9 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
 Then activate again:
 
 .\.venv\Scripts\Activate.ps1
+
+
+
 3️⃣ Install Dependencies
 pip install -r requirements.txt
 🗄️ Database & ETL
