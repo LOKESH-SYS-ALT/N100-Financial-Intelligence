@@ -92,7 +92,12 @@ N100-Financial-Intelligence/
 ├── 📄 README.md
 └── 📄 .gitignore
 ⚙️ Installation & Setup
-🏗️ System Architecture
+
+
+
+
+
+**🏗️ System Architecture**
                          ┌─────────────────────┐
                          │   Raw Excel Data    │
                          │    12 Datasets      │
