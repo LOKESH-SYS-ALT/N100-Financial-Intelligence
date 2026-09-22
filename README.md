@@ -511,7 +511,7 @@ Expected result:
 
 ### One important correction ⚠️
 
-**`154 passed` ni “Expected result” ga pettadam okay**, because mana latest verified test run 154 tests pass ayyayi. But evaluator machine lo dependency/Python version differences valla count/result change ayye possibility untundi. So even better wording:
+
 
 ```markdown
 ### ✅ Current Project Test Status
@@ -525,6 +525,5 @@ Run the tests yourself with:
 
 pytest -q
 
-Idi more professional.
+ 
 
-**Final README lo Quick Start ni `Development Environment` mundu or `Project Status` mundu pettadam best.** Empty ` ``` ` blocks మాత్రం remove cheyyi.
