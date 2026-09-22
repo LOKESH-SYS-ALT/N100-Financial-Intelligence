@@ -1,614 +1,429 @@
-\# N100 Financial Intelligence Platform
+# 📊 N100 Financial Intelligence Platform
 
+> **Production-oriented financial analytics platform for Nifty 100 companies**
 
+N100 Financial Intelligence is an end-to-end financial analytics platform that brings together **data engineering, financial KPI analysis, company screening, peer comparison, financial health analysis, clustering, REST APIs, dashboards, NLP intelligence, and automated reporting** into one workflow.
 
-A production-oriented financial analytics platform for the Nifty 100 companies. The project combines data engineering, financial KPI analysis, screening, peer intelligence, clustering, REST APIs, dashboards, NLP-based pros and cons, and automated PDF reporting.
+---
 
+## 🚀 Project Overview
 
+The platform analyzes financial information across **92 Nifty 100 companies** using multiple structured financial datasets.
 
-\## Project Overview
+### ✨ Core Capabilities
 
+- 🔄 **ETL Pipeline** — Load, normalize, validate, and store financial datasets
+- 📈 **Financial KPI Analysis** — ROE, ROCE, margins, growth, leverage, and more
+- 🔎 **Company Screener** — Filter companies using configurable financial criteria
+- 👥 **Peer Intelligence** — Compare companies with their peer groups
+- ❤️ **Financial Health Score** — Evaluate company-level financial health
+- 💰 **Cash Flow Intelligence** — Analyze cash generation and distress indicators
+- 🏦 **Capital Allocation Intelligence** — Identify capital allocation patterns
+- 🧠 **NLP Intelligence** — Generate structured pros and cons
+- 🔬 **KMeans Clustering** — Group companies into financial archetypes
+- 📊 **Streamlit Dashboard** — Interactive multi-screen analytics interface
+- ⚡ **FastAPI REST API** — Programmatic access to analytics
+- 📄 **Automated Reports** — Company tearsheets and sector reports
+- 🧪 **Automated Testing** — ETL, KPI, screener, API, and integration tests
 
+---
 
-N100 Financial Intelligence provides a unified analytics workflow for Nifty 100 companies.
+# 🛠️ Technology Stack
 
+| Technology | Purpose |
+|---|---|
+| 🐍 Python | Core development |
+| 🐼 Pandas | Data processing |
+| 🔢 NumPy | Numerical computation |
+| 🗄️ SQLite | Database |
+| 🤖 Scikit-learn | Machine learning / clustering |
+| ⚡ FastAPI | REST API |
+| 🚀 Uvicorn | API server |
+| 📊 Streamlit | Interactive dashboard |
+| 📄 ReportLab | PDF report generation |
+| 📈 Matplotlib | Visualization |
+| 🎨 Seaborn | Statistical visualization |
+| 🧪 Pytest | Automated testing |
+| 🖤 Black | Code formatting |
+| 🔍 Ruff | Linting |
 
+---
 
-\### Core capabilities
-
-
-
-\* ETL pipeline for structured financial datasets
-
-\* Financial KPI calculation and validation
-
-\* Company screening and configurable presets
-
-\* Peer-group analysis and comparison
-
-\* Financial health scoring
-
-\* Cash-flow intelligence and distress alerts
-
-\* Capital allocation pattern analysis
-
-\* NLP-based pros and cons generation
-
-\* KMeans company clustering
-
-\* Streamlit analytics dashboard
-
-\* FastAPI REST API
-
-\* Automated company and sector PDF reports
-
-\* Portfolio-level analytics
-
-\* Automated test suite and API integration tests
-
-
-
-\## Technology Stack
-
-
-
-\* Python
-
-\* Pandas
-
-\* NumPy
-
-\* SQLite
-
-\* Scikit-learn
-
-\* FastAPI
-
-\* Uvicorn
-
-\* Streamlit
-
-\* ReportLab
-
-\* Matplotlib
-
-\* Seaborn
-
-\* Pytest
-
-\* Black
-
-\* Ruff
-
-
-
-\## Project Structure
-
-
+# 📁 Project Structure
 
 ```text
-
 N100-Financial-Intelligence/
-
 │
-
-├── data/
-
-│   ├── raw/
-
-│   └── nifty100.db
-
+├── 📂 data/
+│   ├── 📂 raw/
+│   └── 🗄️ nifty100.db
 │
-
-├── output/
-
-│   ├── analysis\_parsed.csv
-
-│   ├── cashflow\_intelligence.xlsx
-
-│   ├── distress\_alerts.csv
-
-│   ├── pattern\_changes.csv
-
-│   ├── portfolio\_stats.csv
-
-│   ├── pros\_cons\_generated.csv
-
-│   └── valuation\_summary.xlsx
-
+├── 📂 config/
+│   └── screener_config.yaml
 │
-
-├── reports/
-
-│   ├── tearsheets/
-
-│   ├── sector\_reports/
-
-│   ├── portfolio/
-
-│   ├── analyst\_guide.pdf
-
-│   ├── correlation\_heatmap.png
-
-│   └── elbow\_plot.png
-
+├── 📂 src/
+│   ├── 📂 analytics/
+│   ├── 📂 api/
+│   │   └── 📂 routers/
+│   ├── 📂 dashboard/
+│   ├── 📂 etl/
+│   ├── 📂 nlp/
+│   ├── 📂 reports/
+│   └── 📂 screener/
 │
-
-├── src/
-
-│   ├── analytics/
-
-│   ├── api/
-
-│   │   └── routers/
-
-│   ├── dashboard/
-
-│   ├── etl/
-
-│   ├── nlp/
-
-│   └── reports/
-
+├── 📂 tests/
+│   ├── 📂 api/
+│   ├── 📂 etl/
+│   ├── 📂 kpi/
+│   └── 📂 screener/
 │
-
-├── tests/
-
-│   ├── api/
-
-│   ├── etl/
-
-│   ├── kpi/
-
-│   └── screener/
-
+├── 📂 scripts/
 │
-
-├── requirements.txt
-
-├── README.md
-
-└── .gitignore
-
-```
-
-
-
-\## Analytics Modules
-
-
-
-\### Financial KPIs
-
-
-
-The platform calculates and analyses financial indicators including:
-
-
-
-\* ROE
-
-\* ROCE
-
-\* ROA
-
-\* Operating Profit Margin
-
-\* Debt-to-Equity
-
-\* Interest Coverage
-
-\* Asset Turnover
-
-\* Revenue CAGR
-
-\* PAT CAGR
-
-\* EPS CAGR
-
-\* Free Cash Flow metrics
-
-
-
-\### Screener
-
-
-
-Companies can be filtered using configurable financial criteria.
-
-
-
-Example filters include:
-
-
-
-\* Minimum ROE
-
-\* Maximum Debt-to-Equity
-
-\* Minimum Revenue CAGR
-
-\* Financial quality characteristics
-
-\* Growth characteristics
-
-\* Dividend characteristics
-
-
-
-\## Clustering
-
-
-
-The platform uses KMeans clustering to group companies into five financial archetypes.
-
-
-
-Clustering features include:
-
-
-
-\* ROE
-
-\* Debt-to-Equity
-
-\* Revenue CAGR
-
-\* Free Cash Flow CAGR
-
-\* Operating Profit Margin
-
-
-
-Missing clustering values are handled through sector-level median imputation before feature scaling.
-
-
-
-\## NLP Intelligence
-
-
-
-The NLP module processes company analysis information and generates structured:
-
-
-
-\* Pros
-
-\* Cons
-
-\* Validation outputs
-
-\* Parse failure reports
-
-
-
-Fallback rules are used when source information is incomplete so that companies can still receive baseline analytical coverage.
-
-
-
-\## Cash Flow Intelligence
-
-
-
-Cash-flow analytics evaluate:
-
-
-
-\* Operating cash flow
-
-\* Investing cash flow
-
-\* Financing cash flow
-
-\* Free cash flow
-
-\* Cash-flow quality
-
-\* Free cash-flow conversion
-
-\* Distress indicators
-
-
-
-Companies without available raw cash-flow data are not assigned invented values.
-
-
-
-\## Capital Allocation Intelligence
-
-
-
-The platform identifies capital allocation patterns such as:
-
-
-
-\* Shareholder Returns
-
-\* Reinvestor
-
-\* Growth Funded by Debt
-
-\* Liquidating Assets
-
-\* Cash Accumulator
-
-\* Distress Signal
-
-\* Mixed
-
-\* Pre-Revenue
-
-
-
-\## Dashboard
-
-
-
-The Streamlit dashboard provides multiple analytical screens covering:
-
-
-
-1\. Home
-
-2\. Company Profile
-
-3\. Screener
-
-4\. Peer Intelligence
-
-5\. Trends
-
-6\. Sectors
-
-7\. Capital Allocation
-
-8\. Reports
-
-
-
-Run the dashboard with:
-
-
-
-```powershell
+├── 📂 output/
+│
+├── 📂 reports/
+│   ├── 📂 tearsheets/
+│   ├── 📂 sector/
+│   └── 📂 portfolio/
+│
+├── 📄 requirements.txt
+├── 📄 pytest.ini
+├── 📄 Makefile
+├── 📄 README.md
+└── 📄 .gitignore
+⚙️ Installation & Setup
+
+Follow these steps to run the project locally.
+
+1️⃣ Clone the Repository
+git clone https://github.com/LOKESH-SYS-ALT/N100-Financial-Intelligence.git
+cd N100-Financial-Intelligence
+2️⃣ Create Virtual Environment
+python -m venv .venv
+🪟 Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+
+If PowerShell blocks script execution:
+
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+
+Then activate again:
+
+.\.venv\Scripts\Activate.ps1
+3️⃣ Install Dependencies
+pip install -r requirements.txt
+🗄️ Database & ETL
+
+The project uses SQLite to store the processed Nifty 100 financial data.
+
+Database location:
+
+data/nifty100.db
+🔄 Run the ETL Pipeline
+
+Load and process the raw datasets:
+
+python -m src.etl.loader
+
+The ETL workflow performs:
+
+📥 Dataset loading
+🧹 Data normalization
+🔤 Ticker normalization
+📅 Financial-year normalization
+🔍 Data-quality validation
+🗄️ SQLite database loading
+📊 Run the Dashboard
+
+Start the Streamlit dashboard:
 
 streamlit run src/dashboard/app.py
 
-```
+After starting, Streamlit will display a local URL in the terminal.
 
+Usually:
 
+http://localhost:8501
+🖥️ Dashboard Screens
 
-The dashboard is available locally through the Streamlit URL displayed in the terminal.
+The dashboard contains:
 
+🏠 Home
+🏢 Company Profile
+🔎 Screener
+👥 Peer Intelligence
+📈 Trends
+🏭 Sectors
+💰 Capital Allocation
+📄 Reports
+⚡ Run the REST API
 
-
-\## REST API
-
-
-
-The project provides a FastAPI REST API under `/api/v1`.
-
-
-
-The API includes endpoints for:
-
-
-
-\* Health monitoring
-
-\* Company listing and filtering
-
-\* Company profiles
-
-\* Profit and loss
-
-\* Balance sheet
-
-\* Cash flow
-
-\* Financial ratios
-
-\* Company documents
-
-\* Screener
-
-\* Sector analysis
-
-\* Sector companies
-
-\* Peer groups
-
-\* Peer comparison
-
-\* Market-cap data
-
-\* Portfolio statistics
-
-\* Company tearsheets
-
-
-
-Run the API with:
-
-
-
-```powershell
+Start the FastAPI server:
 
 uvicorn src.api.main:app --reload
 
-```
+API:
 
+http://127.0.0.1:8000
+📚 Swagger API Documentation
 
+Open:
 
-API documentation:
+http://127.0.0.1:8000/docs
 
+The API provides endpoints for:
 
+❤️ Health monitoring
+🏢 Company listing
+🔎 Company filtering
+📊 Company profiles
+💹 Profit & Loss
+🏦 Balance Sheet
+💵 Cash Flow
+📈 Financial Ratios
+📄 Company Documents
+🔎 Screener
+🏭 Sector Analysis
+👥 Peer Groups
+🤝 Peer Comparison
+💰 Market Capitalization
+📊 Portfolio Statistics
+📄 Company Tearsheets
+🧪 Run Tests
 
-```text
-
-/docs
-
-```
-
-
-
-\## Testing
-
-
-
-The project uses Pytest for automated validation.
-
-
+The project includes automated tests covering the major components.
 
 Run the complete test suite:
 
-
-
-```powershell
-
 pytest -q
+✅ Current Test Result
+154 passed
 
-```
+Test coverage includes:
 
+🔄 ETL loading
+🔤 Data normalization
+✅ Data validation
+📈 CAGR calculations
+💰 Cash-flow KPIs
+🏦 Leverage analysis
+📊 Financial ratios
+🔎 Screener engine
+⚡ API endpoints
+🔗 Integration behaviour
+📈 Financial KPI Analytics
 
+The platform calculates and analyzes financial indicators including:
 
-The test suite covers:
+ROE
+ROCE
+ROA
+Operating Profit Margin
+Debt-to-Equity
+Interest Coverage
+Asset Turnover
+Revenue CAGR
+PAT CAGR
+EPS CAGR
+Free Cash Flow metrics
+🔎 Company Screener
 
+The screener supports configurable financial criteria.
 
+Example filters include:
 
-\* Normalization
+📈 Minimum ROE
+🏦 Maximum Debt-to-Equity
+📊 Minimum Revenue CAGR
+💎 Financial quality
+🚀 Growth characteristics
+💰 Dividend characteristics
 
-\* ETL loading
+Screening rules can be configured through:
 
-\* Data validation
+config/screener_config.yaml
+🔬 Company Clustering
 
-\* Financial KPIs
+The platform uses KMeans clustering to group companies into five financial archetypes.
 
-\* Screener engine
+Clustering Features
+ROE
+Debt-to-Equity
+Revenue CAGR
+Free Cash Flow CAGR
+Operating Profit Margin
 
-\* API endpoints
+Missing clustering values are handled using sector-level median imputation before feature scaling.
 
-\* Integration behaviour
+🧠 NLP Intelligence
 
+The NLP module processes company analysis information and generates structured:
 
+👍 Pros
+👎 Cons
+✅ Validation outputs
+⚠️ Parse failure reports
 
-\## Code Quality
+Fallback rules are used when source information is incomplete so that companies can still receive baseline analytical coverage.
 
+💰 Cash Flow Intelligence
 
+Cash-flow analytics evaluate:
 
-Code formatting is maintained using Black.
+💵 Operating Cash Flow
+🏗️ Investing Cash Flow
+💳 Financing Cash Flow
+💰 Free Cash Flow
+📊 Cash-flow quality
+🔄 Free Cash-flow conversion
+🚨 Distress indicators
 
+The platform does not fabricate missing financial values.
 
+🏦 Capital Allocation Intelligence
 
-```powershell
+The platform identifies capital allocation patterns such as:
 
-python -m black src tests
-
-```
-
-
-
-Ruff is used for linting when available.
-
-
-
-```powershell
-
-ruff check src tests
-
-```
-
-
-
-\## Reports
-
-
+👨‍💼 Shareholder Returns
+🔄 Reinvestor
+💳 Growth Funded by Debt
+📉 Liquidating Assets
+💰 Cash Accumulator
+🚨 Distress Signal
+🔀 Mixed
+🌱 Pre-Revenue
+📄 Automated Reporting
 
 The reporting layer generates:
 
+🏢 Company Reports
 
+Individual company tearsheets containing financial and analytical information.
 
-\* Individual company tearsheets
+🏭 Sector Reports
 
-\* Sector reports
+Sector-level analysis for the available Nifty 100 sectors.
 
-\* Portfolio summary report
+💼 Portfolio Summary
 
-\* Analyst guide
+Portfolio-level analytics and summary information.
 
-\* Supporting analytics charts
+📚 Analyst Guide
 
+Supporting documentation for interpreting the platform's outputs.
 
+Reports are stored under:
 
-Reports are stored under the `reports/` directory.
+reports/
+✅ Data Quality
 
+The ETL validation layer checks important data-quality rules including:
 
-
-\## Data Quality
-
-
-
-The ETL validation layer checks data quality rules including:
-
-
-
-\* Required columns
-
-\* Duplicate company/year records
-
-\* Company references
-
-\* Missing company IDs
-
-\* Operating margin consistency
-
-\* Invalid sales values
-
-
+📋 Required columns
+🔁 Duplicate company/year records
+🔗 Company references
+🆔 Missing company IDs
+📊 Operating margin consistency
+💵 Invalid sales values
+🔍 Dataset consistency
 
 The project preserves source data and does not fabricate missing financial values.
 
+🖤 Code Quality
+Black
 
+Format source and test code:
 
-\## Development Environment
+python -m black src tests
+Ruff
 
+Run linting when Ruff is installed:
 
+ruff check src tests
 
-Recommended environment:
+ℹ️ Ruff is optional for environments where it is not installed.
 
+🧰 Development Environment
 
-
-```powershell
+Recommended Python environment:
 
 python -m venv .venv
 
-.\\.venv\\Scripts\\Activate.ps1
+Windows PowerShell:
 
-```
-
-
+.\.venv\Scripts\Activate.ps1
 
 Install dependencies:
 
+pip install -r requirements.txt
+🔄 Quick Start
 
+If everything is already configured, the basic workflow is:
 
-```powershell
+# 1. Clone
+git clone https://github.com/LOKESH-SYS-ALT/N100-Financial-Intelligence.git
 
+# 2. Enter project
+cd N100-Financial-Intelligence
+
+# 3. Create environment
+python -m venv .venv
+
+# 4. Activate - Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+
+# 5. Install dependencies
 pip install -r requirements.txt
 
-```
+# 6. Run ETL
+python -m src.etl.loader
 
+# 7. Run API
+uvicorn src.api.main:app --reload
 
+# 8. Run Dashboard
+streamlit run src/dashboard/app.py
 
-\## Important Notes
+# 9. Run tests
+pytest -q
 
+💡 Tip: Run the API and Dashboard in separate terminals.
 
+📌 Important Notes
 
-This project is intended for educational, analytical, and portfolio-research purposes.
+This project is intended for:
 
-
+🎓 Educational purposes
+💼 Portfolio demonstration
+📊 Financial analytics research
+🧪 Technical experimentation
 
 Financial data and analytical outputs should not be interpreted as investment advice.
+📦 Project Status
+Component	Status
+🔄 ETL Pipeline	✅ Complete
+🗄️ SQLite Database	✅ Complete
+📊 Financial Analytics	✅ Complete
+🔎 Screener	✅ Complete
+👥 Peer Intelligence	✅ Complete
+🔬 Clustering	✅ Complete
+🧠 NLP Intelligence	✅ Complete
+⚡ REST API	✅ Complete
+📊 Streamlit Dashboard	✅ Complete
+📄 PDF Reporting	✅ Complete
+🧪 Automated Tests	✅ Complete
+📚 Documentation	✅ Complete
+🏁 Version
+
+N100 Financial Intelligence — v1.0
+
+Production-oriented financial analytics platform for Nifty 100 companies.
 
 
+### ⚠️ One small thing
 
+Nee existing README lo `**svg**` ani multiple places lo unnayi. **Avi remove cheyyi.** Avi actual image references kaakapothe GitHub lo unnecessary ga kanipistayi.
+
+And `reports/sector_reports/` ni **`reports/sector/`** ga correct chesanu.
+
+**Ee README ni GitHub lo replace chesi commit cheyyachu.** Then next manam GitHub lo unnecessary files remove
