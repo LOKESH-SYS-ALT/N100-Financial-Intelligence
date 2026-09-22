@@ -420,10 +420,111 @@ N100 Financial Intelligence — v1.0
 Production-oriented financial analytics platform for Nifty 100 companies.
 
 
-### ⚠️ One small thing
+**“clone → setup → ETL → API → dashboard → tests” to one place**
+🔄 Quick Start — final version
+# 🔄 Quick Start
 
-Nee existing README lo `**svg**` ani multiple places lo unnayi. **Avi remove cheyyi.** Avi actual image references kaakapothe GitHub lo unnecessary ga kanipistayi.
+Follow these steps to run the N100 Financial Intelligence Platform locally.
 
-And `reports/sector_reports/` ni **`reports/sector/`** ga correct chesanu.
+### 1️⃣ Clone the Repository
 
-**Ee README ni GitHub lo replace chesi commit cheyyachu.** Then next manam GitHub lo unnecessary files remove
+```bash
+git clone https://github.com/LOKESH-SYS-ALT/N100-Financial-Intelligence.git
+cd N100-Financial-Intelligence
+2️⃣ Create & Activate Virtual Environment
+python -m venv .venv
+
+Windows PowerShell:
+
+.\.venv\Scripts\Activate.ps1
+
+If PowerShell blocks script execution:
+
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+
+Then activate again:
+
+.\.venv\Scripts\Activate.ps1
+3️⃣ Install Dependencies
+pip install -r requirements.txt
+4️⃣ Run ETL Pipeline
+
+Load and validate the raw financial datasets into SQLite:
+
+python -m src.etl.loader
+
+Database:
+
+data/nifty100.db
+5️⃣ Run the API
+
+Open a new terminal, activate the virtual environment, and run:
+
+uvicorn src.api.main:app --reload
+
+API:
+
+http://127.0.0.1:8000
+
+Swagger documentation:
+
+http://127.0.0.1:8000/docs
+6️⃣ Run the Dashboard
+
+Open another terminal, activate the virtual environment, and run:
+
+streamlit run src/dashboard/app.py
+
+Dashboard:
+
+http://localhost:8501
+7️⃣ Run Tests
+
+Run the complete automated test suite:
+
+pytest -q
+
+Expected result:
+
+154 passed
+🏁 Complete Workflow
+📥 Clone Repository
+       ↓
+🐍 Create Virtual Environment
+       ↓
+📦 Install Dependencies
+       ↓
+🔄 Run ETL Pipeline
+       ↓
+🗄️ SQLite Database
+       ↓
+⚡ Start FastAPI
+       ↓
+📊 Start Streamlit Dashboard
+       ↓
+🧪 Run Tests
+       ↓
+✅ N100 Financial Intelligence Platform
+
+💡 Tip: Run the API and Streamlit Dashboard in separate terminals so both services can run simultaneously.
+
+
+### One important correction ⚠️
+
+**`154 passed` ni “Expected result” ga pettadam okay**, because mana latest verified test run 154 tests pass ayyayi. But evaluator machine lo dependency/Python version differences valla count/result change ayye possibility untundi. So even better wording:
+
+```markdown
+### ✅ Current Project Test Status
+
+The latest project verification completed with:
+
+```text
+154 passed
+
+Run the tests yourself with:
+
+pytest -q
+
+Idi more professional.
+
+**Final README lo Quick Start ni `Development Environment` mundu or `Project Status` mundu pettadam best.** Empty ` ``` ` blocks మాత్రం remove cheyyi.
